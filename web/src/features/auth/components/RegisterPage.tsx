@@ -1,0 +1,78 @@
+import { useState, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
+import { authApi, setToken, setUser } from '../api/auth';
+
+export function RegisterPage() {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    // const navigate = useNavigate(); // Unused, using window.location for hard reload
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        try {
+            const data = await authApi.register(email, password, name);
+            setToken(data.access_token);
+            setUser(data.user);
+            window.location.href = '/';
+        } catch (err: any) {
+            setError(err.message || 'Registration failed');
+        }
+    };
+
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-muted/20">
+            <div className="bg-card p-8 rounded-xl shadow-lg border w-full max-w-md space-y-6">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-primary">Create Account</h1>
+                    <p className="text-sm text-muted-foreground">Join Wafir to manage your wealth</p>
+                </div>
+
+                {error && <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">{error}</div>}
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Name</label>
+                        <input
+                            type="text"
+                            className="w-full p-2 rounded-md border bg-input"
+                            value={name}
+                            onChange={e => setName(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Email</label>
+                        <input
+                            type="email"
+                            className="w-full p-2 rounded-md border bg-input"
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Password</label>
+                        <input
+                            type="password"
+                            className="w-full p-2 rounded-md border bg-input"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button
+                        type="submit"
+                        className="w-full bg-primary text-primary-foreground py-2 rounded-lg font-bold hover:bg-primary/90 transition-colors"
+                    >
+                        Sign Up
+                    </button>
+                </form>
+                <div className="text-center text-sm">
+                    Already have an account? <Link to="/login" className="text-primary hover:underline">Login</Link>
+                </div>
+            </div>
+        </div>
+    );
+}

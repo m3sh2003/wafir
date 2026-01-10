@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  backend-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.x
+    - run: npm ci
+      working-directory: backend
+    - run: npm run build
+      working-directory: backend
+    - run: npm run test:e2e
+      working-directory: backend
+
+  web-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.x
+    - run: npm ci
+      working-directory: web
+    - run: npm run build
+      working-directory: web
+
+  mobile-analyze:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.x'
+    - run: flutter pub get
+      working-directory: mobile
+    - run: flutter analyze
+      working-directory: mobile
