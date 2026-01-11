@@ -62,6 +62,25 @@ let AssetsService = class AssetsService {
         const newTargets = targets.map(t => this.targetRepo.create({ ...t, userId }));
         return this.targetRepo.save(newTargets);
     }
+    async updateAccount(id, userId, dto) {
+        const account = await this.accountRepo.findOne({ where: { id: Number(id), userId } });
+        if (!account)
+            throw new common_1.NotFoundException('Account not found');
+        Object.assign(account, dto);
+        return this.accountRepo.save(account);
+    }
+    async removeAccount(id, userId) {
+        const account = await this.accountRepo.findOne({ where: { id: Number(id), userId } });
+        if (!account)
+            throw new common_1.NotFoundException('Account not found');
+        await this.accountRepo.remove(account);
+    }
+    async removeHolding(id, userId) {
+        const holding = await this.holdingRepo.findOne({ where: { id: Number(id) }, relations: ['account'] });
+        if (!holding || holding.account.userId !== userId)
+            throw new common_1.NotFoundException('Holding not found');
+        await this.holdingRepo.remove(holding);
+    }
 };
 exports.AssetsService = AssetsService;
 exports.AssetsService = AssetsService = __decorate([

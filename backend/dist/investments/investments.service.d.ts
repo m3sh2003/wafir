@@ -16,4 +16,7 @@ export declare class InvestmentsService {
     getPortfolio(userId: string): Promise<any[]>;
     invest(userId: string, assetId: string, amount: number): Promise<UserPortfolio>;
     rebalancePortfolio(userId: string): Promise<any>;
+    sellInvestment(userId: string, assetId: string, amount: number): Promise<UserPortfolio | {
+        message: string;
+    }>;
 }

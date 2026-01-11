@@ -111,4 +111,17 @@ export class BudgetService {
         });
         return this.categoryRepository.save(category);
     }
+    async updateTransaction(id: string, userId: string, dto: Partial<CreateTransactionDto>): Promise<Transaction> {
+        const transaction = await this.transactionRepository.findOne({ where: { id, userId } });
+        if (!transaction) throw new NotFoundException('Transaction not found');
+        Object.assign(transaction, dto);
+        if (dto.date) transaction.date = new Date(dto.date);
+        return this.transactionRepository.save(transaction);
+    }
+
+    async removeTransaction(id: string, userId: string): Promise<void> {
+        const transaction = await this.transactionRepository.findOne({ where: { id, userId } });
+        if (!transaction) throw new NotFoundException('Transaction not found');
+        await this.transactionRepository.remove(transaction);
+    }
 }

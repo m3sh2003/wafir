@@ -139,6 +139,25 @@ let InvestmentsService = class InvestmentsService {
             recommendedActions: actions.length > 0 ? actions : ['Portfolio is balanced']
         };
     }
+    async sellInvestment(userId, assetId, amount) {
+        if (amount <= 0)
+            throw new common_1.BadRequestException('Amount must be positive');
+        const portfolioItem = await this.portfolioRepository.findOne({ where: { userId, assetId } });
+        if (!portfolioItem)
+            throw new common_1.NotFoundException('Investment not found');
+        if (Number(portfolioItem.amount) < amount) {
+            throw new common_1.BadRequestException('Insufficient holdings to sell this amount');
+        }
+        const newAmount = Number(portfolioItem.amount) - amount;
+        if (newAmount <= 0) {
+            await this.portfolioRepository.remove(portfolioItem);
+            return { message: 'Investment sold completely' };
+        }
+        else {
+            portfolioItem.amount = newAmount;
+            return this.portfolioRepository.save(portfolioItem);
+        }
+    }
 };
 exports.InvestmentsService = InvestmentsService;
 exports.InvestmentsService = InvestmentsService = __decorate([

@@ -18,4 +18,6 @@ export declare class BudgetService {
     findAllTransactionsForEnvelope(userId: string, envelopeId: string): Promise<Transaction[]>;
     findAllCategories(userId: string): Promise<Category[]>;
     createCategory(userId: string, name: string): Promise<Category>;
+    updateTransaction(id: string, userId: string, dto: Partial<CreateTransactionDto>): Promise<Transaction>;
+    removeTransaction(id: string, userId: string): Promise<void>;
 }

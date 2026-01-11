@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useEnvelopes, useCreateEnvelope } from '../api/budget';
 import { Plus, Wallet, X } from 'lucide-react';
 import { AddTransactionModal } from './AddTransactionModal';
@@ -9,6 +10,7 @@ import { CategoryManager } from './CategoryManager';
 export function BudgetDashboard() {
     const { data: envelopes, isLoading, error } = useEnvelopes();
     const createEnvelope = useCreateEnvelope();
+    const { t } = useTranslation();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const [newEnvelope, setNewEnvelope] = useState({ name: '', limitAmount: 0 });
@@ -36,20 +38,20 @@ export function BudgetDashboard() {
     return (
         <div className="p-6 space-y-6 animate-in fade-in">
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold tracking-tight text-primary">Budget Envelopes</h1>
+                <h1 className="text-3xl font-bold tracking-tight text-primary">{t('budget')}</h1>
                 <div className="flex gap-2">
                     <button
                         onClick={() => setIsCategoryModalOpen(true)}
                         className="text-sm border border-input bg-background hover:bg-muted text-foreground px-4 py-2 rounded-md transition-colors"
                     >
-                        Manage Categories
+                        {t('envelope_category')}
                     </button>
                     <button
                         onClick={() => setIsCreateModalOpen(true)}
                         className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
                     >
                         <Plus size={20} />
-                        New Envelope
+                        {t('create')} Envelope
                     </button>
                 </div>
             </div>
@@ -70,7 +72,7 @@ export function BudgetDashboard() {
                                     onClick={() => setTransactionModalState({ isOpen: true, envelopeId: env.id, envelopeName: env.name })}
                                     className="text-xs bg-secondary hover:bg-secondary/80 text-secondary-foreground px-3 py-1.5 rounded-full transition-colors font-medium"
                                 >
-                                    + Add Tx
+                                    + {t('add_transaction')}
                                 </button>
                             </div>
 
@@ -87,7 +89,7 @@ export function BudgetDashboard() {
                                     />
                                 </div>
                                 <div className="flex justify-between text-xs text-muted-foreground">
-                                    <span>{Number(env.spent || 0).toLocaleString()} Spent</span>
+                                    <span>{Number(env.spent || 0).toLocaleString()} {t('remaining')}</span>
                                     <span>{Math.round(((env.spent || 0) / Number(env.limitAmount)) * 100)}%</span>
                                 </div>
                             </div>
@@ -105,12 +107,12 @@ export function BudgetDashboard() {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
                     <div className="bg-background p-6 rounded-lg w-full max-w-md space-y-4 shadow-xl border">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-xl font-bold">Create Envelope</h2>
+                            <h2 className="text-xl font-bold">{t('create')} Envelope</h2>
                             <button onClick={() => setIsCreateModalOpen(false)}><X size={20} /></button>
                         </div>
                         <form onSubmit={handleCreate} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1">Name</label>
+                                <label className="block text-sm font-medium mb-1">{t('name')}</label>
                                 <input
                                     autoFocus
                                     className="w-full p-2 rounded-md border bg-input"
@@ -135,13 +137,13 @@ export function BudgetDashboard() {
                                     onClick={() => setIsCreateModalOpen(false)}
                                     className="px-4 py-2 rounded-md hover:bg-muted"
                                 >
-                                    Cancel
+                                    {t('cancel')}
                                 </button>
                                 <button
                                     type="submit"
                                     className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90"
                                 >
-                                    Create
+                                    {t('create')}
                                 </button>
                             </div>
                         </form>

@@ -31,6 +31,7 @@ export interface CreateTransactionDto {
     amount: number;
     envelopeId: string;
     date?: string;
+    currency?: string;
 }
 
 export interface Category {
@@ -162,6 +163,52 @@ export const useCreateCategory = () => {
         mutationFn: createCategory,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['categories'] });
+        },
+    });
+};
+
+// Update/Delete API
+async function updateTransaction(id: string, dto: Partial<CreateTransactionDto>): Promise<Transaction> {
+    const token = getToken();
+    const res = await fetch(`${API_URL}/budget/transactions/${id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(dto),
+    });
+    if (!res.ok) throw new Error('Failed to update transaction');
+    return res.json();
+}
+
+async function deleteTransaction(id: string): Promise<void> {
+    const token = getToken();
+    const res = await fetch(`${API_URL}/budget/transactions/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed to delete transaction');
+}
+
+export const useUpdateTransaction = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, dto }: { id: string; dto: Partial<CreateTransactionDto> }) => updateTransaction(id, dto),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['transactions'] });
+            queryClient.invalidateQueries({ queryKey: ['envelopes'] });
+        },
+    });
+};
+
+export const useDeleteTransaction = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: deleteTransaction,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['transactions'] });
+            queryClient.invalidateQueries({ queryKey: ['envelopes'] });
         },
     });
 };

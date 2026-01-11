@@ -8,6 +8,12 @@ export declare class InvestmentsController {
         productId: string;
         amount: number;
     }): Promise<import("./entities/portfolio.entity").UserPortfolio>;
+    sell(req: any, body: {
+        productId: string;
+        amount: number;
+    }): Promise<import("./entities/portfolio.entity").UserPortfolio | {
+        message: string;
+    }>;
     getRiskProfile(req: any): Promise<{
         riskProfile: string;
     }>;

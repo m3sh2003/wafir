@@ -45,6 +45,12 @@ let BudgetController = class BudgetController {
     findAllTransactions(req, id) {
         return this.budgetService.findAllTransactionsForEnvelope(req.user.userId, id);
     }
+    updateTransaction(req, id, dto) {
+        return this.budgetService.updateTransaction(id, req.user.userId, dto);
+    }
+    deleteTransaction(req, id) {
+        return this.budgetService.removeTransaction(id, req.user.userId);
+    }
     findAllCategories(req) {
         return this.budgetService.findAllCategories(req.user.userId);
     }
@@ -113,6 +119,25 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], BudgetController.prototype, "findAllTransactions", null);
+__decorate([
+    (0, common_1.Patch)('transactions/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update a transaction' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], BudgetController.prototype, "updateTransaction", null);
+__decorate([
+    (0, common_1.Delete)('transactions/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete a transaction' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], BudgetController.prototype, "deleteTransaction", null);
 __decorate([
     (0, common_1.Get)('categories'),
     (0, swagger_1.ApiOperation)({ summary: 'List categories' }),

@@ -34,6 +34,15 @@ let AssetsController = class AssetsController {
     addHolding(accountId, body) {
         return this.assetsService.createHolding(accountId, body);
     }
+    updateAccount(req, id, body) {
+        return this.assetsService.updateAccount(id, req.user.userId, body);
+    }
+    deleteAccount(req, id) {
+        return this.assetsService.removeAccount(id, req.user.userId);
+    }
+    deleteHolding(req, id) {
+        return this.assetsService.removeHolding(id, req.user.userId);
+    }
 };
 exports.AssetsController = AssetsController;
 __decorate([
@@ -70,6 +79,34 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", void 0)
 ], AssetsController.prototype, "addHolding", null);
+__decorate([
+    (0, common_1.Patch)('accounts/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update an account' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], AssetsController.prototype, "updateAccount", null);
+__decorate([
+    (0, common_1.Delete)('accounts/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete an account' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], AssetsController.prototype, "deleteAccount", null);
+__decorate([
+    (0, common_1.Delete)('holdings/:id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete a holding' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], AssetsController.prototype, "deleteHolding", null);
 exports.AssetsController = AssetsController = __decorate([
     (0, swagger_1.ApiTags)('Assets'),
     (0, swagger_1.ApiBearerAuth)(),

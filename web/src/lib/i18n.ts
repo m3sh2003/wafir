@@ -132,7 +132,20 @@ const resources = {
             "import_db": "Import Database (Restore)",
             "data_exported": "Data Exported Successfully",
             "db_backup_created": "Database Backup Created",
-            "db_restored": "Database Restored Successfully"
+            "db_restored": "Database Restored Successfully",
+            "Equity": "Equity",
+            "Sukuk": "Sukuk",
+            "Fund": "Fund",
+            "Real Estate": "Real Estate",
+            "Cash": "Cash / Gold",
+            "ETF": "ETF",
+            "REIT": "REIT",
+            "Stock": "Stock",
+            "bank": "Bank",
+            "broker": "Broker",
+            "real_estate": "Real Estate",
+            "Certificate": "Certificate",
+            "Currency": "Currency"
         }
     },
     ar: {
@@ -263,7 +276,20 @@ const resources = {
             "import_db": "استيراد قاعدة البيانات (استعادة)",
             "data_exported": "تم تصدير البيانات بنجاح",
             "db_backup_created": "تم إنشاء نسخة احتياطية",
-            "db_restored": "تم استعادة قاعدة البيانات بنجاح"
+            "db_restored": "تم استعادة قاعدة البيانات بنجاح",
+            "Equity": "أسهم",
+            "Sukuk": "صكوك",
+            "Fund": "صندوق استثماري",
+            "Real Estate": "عقار",
+            "Cash": "نقد / ذهب",
+            "ETF": "صندوق متداول",
+            "REIT": "ريت (عقاري)",
+            "Stock": "سهم",
+            "bank": "بمكي",
+            "broker": "محفظة استثمارية",
+            "real_estate": "عقاري",
+            "Certificate": "شهادة استثمار",
+            "Currency": "عملة"
         }
     }
 };

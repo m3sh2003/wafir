@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../contexts/SettingsContext';
-import { useUserPortfolio, useInvestmentProducts } from '../investments/api/investments';
+import { useUserPortfolio } from '../investments/api/investments';
 import { useEnvelopes } from '../budget/api/budget';
 
 export function OverviewDashboard() {

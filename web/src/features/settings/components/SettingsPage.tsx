@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../../contexts/SettingsContext';
-import { Moon, Sun, Globe, DollarSign, Save, User, Lock, Hash, Fingerprint, FileText, Database, Mail, Phone, Download, Upload } from 'lucide-react';
+import { Moon, Sun, Globe, DollarSign, Save, User, Lock, Hash, Fingerprint, FileText, Database, Download, Upload } from 'lucide-react';
 import { useState } from 'react';
 
 export function SettingsPage() {

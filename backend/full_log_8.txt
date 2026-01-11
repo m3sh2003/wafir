@@ -1,0 +1,33 @@
+Database connected for Arabic seeding...
+User found. Updating locale...
+Seeding Arabic Envelopes...
+Created envelope: السكن
+Created envelope: المأكل والمشرب
+Created envelope: النقل والمواصلات
+Created envelope: الفواتير والخدمات
+Created envelope: الترفيه
+Created envelope: التسوق
+Created envelope: المطاعم والمقاهي
+Created envelope: العناية الشخصية
+Created envelope: صندوق الطوارئ
+Created envelope: الاستثمار
+Created envelope: الادخار
+Created envelope: الصدقة
+Created envelope: زكاة المال
+Created envelope: الهدايا
+Created envelope: السفر
+Seeding Assets...
+Created asset: مصرف الراجحي
+Created asset: سابك للمغذايات الزراعية
+Created asset: صندوق الراجحي ريت
+Created asset: صكوك حكومة المملكة العربية السعودية
+Created asset: بنك فيصل الإسلامي
+Created asset: أبو قير للأسمدة
+Created asset: السويدي إليكتريك
+Created asset: المصرية للاتصالات
+Created asset: شهادة بنك فيصل الإسلامي (3 سنوات)
+Created asset: شهادة "كنانة" المعاملات الإسلامية (بنك مصر)
+Created asset: جنيه مصري (نقد)
+Created asset: دولار أمريكي
+Created asset: ذهب (جرام 24)
+Arabic Seeding Complete!

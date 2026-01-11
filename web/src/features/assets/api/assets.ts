@@ -100,3 +100,41 @@ export const useAddHolding = () => {
         },
     });
 };
+
+async function deleteAccount(id: number): Promise<void> {
+    const token = getToken();
+    const res = await fetch(`${API_URL}/assets/accounts/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed to delete account');
+}
+
+async function deleteHolding(id: number): Promise<void> {
+    const token = getToken();
+    const res = await fetch(`${API_URL}/assets/holdings/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed to delete holding');
+}
+
+export const useDeleteAccount = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: deleteAccount,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['accounts'] });
+        },
+    });
+};
+
+export const useDeleteHolding = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: deleteHolding,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['accounts'] });
+        },
+    });
+};

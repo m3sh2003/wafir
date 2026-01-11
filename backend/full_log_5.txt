@@ -1,0 +1,60 @@
+QueryFailedError: column "expectedReturn" of relation "assets" contains null values
+    at PostgresQueryRunner.query (F:\Wafir\backend\node_modules\typeorm\src\driver\postgres\PostgresQueryRunner.ts:325:19)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async PostgresQueryRunner.executeQueries (F:\Wafir\backend\node_modules\src\query-runner\BaseQueryRunner.ts:681:13)
+    at async PostgresQueryRunner.addColumn (F:\Wafir\backend\node_modules\typeorm\src\driver\postgres\PostgresQueryRunner.ts:1160:9)
+    at async PostgresQueryRunner.addColumns (F:\Wafir\backend\node_modules\typeorm\src\driver\postgres\PostgresQueryRunner.ts:1174:13)
+    at async RdbmsSchemaBuilder.addNewColumns (F:\Wafir\backend\node_modules\src\schema-builder\RdbmsSchemaBuilder.ts:845:13)
+    at async RdbmsSchemaBuilder.executeSchemaSyncOperationsInProperOrder (F:\Wafir\backend\node_modules\src\schema-builder\RdbmsSchemaBuilder.ts:227:9)
+    at async RdbmsSchemaBuilder.build (F:\Wafir\backend\node_modules\src\schema-builder\RdbmsSchemaBuilder.ts:95:13)
+    at async DataSource.synchronize (F:\Wafir\backend\node_modules\src\data-source\DataSource.ts:340:9)
+    at async DataSource.initialize (F:\Wafir\backend\node_modules\src\data-source\DataSource.ts:278:43) {
+  query: 'ALTER TABLE "assets" ADD "expectedReturn" numeric(5,2) NOT NULL',
+  parameters: undefined,
+  driverError: error: column "expectedReturn" of relation "assets" contains null values
+      at F:\Wafir\backend\node_modules\pg\lib\client.js:545:17
+      at processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async PostgresQueryRunner.query (F:\Wafir\backend\node_modules\typeorm\src\driver\postgres\PostgresQueryRunner.ts:254:25)
+      at async PostgresQueryRunner.executeQueries (F:\Wafir\backend\node_modules\src\query-runner\BaseQueryRunner.ts:681:13)
+      at async PostgresQueryRunner.addColumn (F:\Wafir\backend\node_modules\typeorm\src\driver\postgres\PostgresQueryRunner.ts:1160:9)
+      at async PostgresQueryRunner.addColumns (F:\Wafir\backend\node_modules\typeorm\src\driver\postgres\PostgresQueryRunner.ts:1174:13)
+      at async RdbmsSchemaBuilder.addNewColumns (F:\Wafir\backend\node_modules\src\schema-builder\RdbmsSchemaBuilder.ts:845:13)
+      at async RdbmsSchemaBuilder.executeSchemaSyncOperationsInProperOrder (F:\Wafir\backend\node_modules\src\schema-builder\RdbmsSchemaBuilder.ts:227:9)
+      at async RdbmsSchemaBuilder.build (F:\Wafir\backend\node_modules\src\schema-builder\RdbmsSchemaBuilder.ts:95:13)
+      at async DataSource.synchronize (F:\Wafir\backend\node_modules\src\data-source\DataSource.ts:340:9) {
+    length: 160,
+    severity: 'ERROR',
+    code: '23502',
+    detail: undefined,
+    hint: undefined,
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: 'public',
+    table: 'assets',
+    column: 'expectedReturn',
+    dataType: undefined,
+    constraint: undefined,
+    file: 'tablecmds.c',
+    line: '6049',
+    routine: 'ATRewriteTable'
+  },
+  length: 160,
+  severity: 'ERROR',
+  code: '23502',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'assets',
+  column: 'expectedReturn',
+  dataType: undefined,
+  constraint: undefined,
+  file: 'tablecmds.c',
+  line: '6049',
+  routine: 'ATRewriteTable'
+}

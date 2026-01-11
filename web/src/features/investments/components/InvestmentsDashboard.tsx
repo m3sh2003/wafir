@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { useInvestmentProducts, useUserPortfolio, useBuyInvestment, useUserProfile, useRebalancePortfolio } from '../api/investments';
-import { TrendingUp, ShieldCheck, X, Target, Scale } from 'lucide-react';
+import { useInvestmentProducts, useUserPortfolio, useBuyInvestment, useSellInvestment, useUserProfile, useRebalancePortfolio } from '../api/investments';
+import { TrendingUp, ShieldCheck, X, Target, Scale, Minus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../../contexts/SettingsContext';
@@ -13,8 +13,10 @@ export function InvestmentsDashboard() {
     const { data: portfolio, isLoading: portfolioLoading } = useUserPortfolio();
     const { data: userProfile } = useUserProfile();
     const buyMutation = useBuyInvestment();
+    const sellMutation = useSellInvestment();
 
     const [buyModalOpen, setBuyModalOpen] = useState<{ isOpen: boolean; product: any | null } | null>(null);
+    const [sellModalOpen, setSellModalOpen] = useState<{ isOpen: boolean; item: any | null } | null>(null);
     const [riskModalOpen, setRiskModalOpen] = useState(false);
     const [rebalanceModalOpen, setRebalanceModalOpen] = useState(false);
     const [rebalanceResult, setRebalanceResult] = useState<any>(null);
@@ -41,6 +43,21 @@ export function InvestmentsDashboard() {
                 amount: Number(amount)
             });
             setBuyModalOpen(null);
+            setAmount(0);
+        } catch (err: any) {
+            alert(err.message);
+        }
+    };
+
+    const handleSell = async (e: FormEvent) => {
+        e.preventDefault();
+        if (!sellModalOpen?.item) return;
+        try {
+            await sellMutation.mutateAsync({
+                productId: sellModalOpen.item.asset.id,
+                amount: Number(amount)
+            });
+            setSellModalOpen(null);
             setAmount(0);
         } catch (err: any) {
             alert(err.message);
@@ -95,13 +112,19 @@ export function InvestmentsDashboard() {
                     <h2 className="text-xl font-bold mb-4 text-primary">{t('your_holdings')}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {portfolio.map(item => (
-                            <div key={item.id} className="bg-card border p-4 rounded-xl shadow-sm flex justify-between items-center">
+                            <div key={item.id} className="bg-card border p-4 rounded-xl shadow-sm flex justify-between items-center group">
                                 <div>
                                     <h3 className="font-semibold">{item.asset.name}</h3>
-                                    <p className="text-xs text-muted-foreground">{item.asset.type}</p>
+                                    <p className="text-xs text-muted-foreground">{t(item.asset.type)}</p>
                                 </div>
-                                <div className="text-right">
+                                <div className="text-right flex flex-col items-end gap-1">
                                     <p className="font-bold text-lg dir-ltr">{formatPrice(Number(item.amount))}</p>
+                                    <button
+                                        onClick={() => setSellModalOpen({ isOpen: true, item })}
+                                        className="text-xs text-destructive hover:text-destructive/80 flex items-center gap-1 transition-colors bg-destructive/5 px-2 py-1 rounded-full"
+                                    >
+                                        <Minus size={12} /> {t('Sell')}
+                                    </button>
                                 </div>
                             </div>
                         ))}
@@ -119,7 +142,6 @@ export function InvestmentsDashboard() {
                 </Link>
             </div>
 
-            {/* Available Opportunities */}
             {/* Available Opportunities */}
             <div>
                 <h2 className="text-xl font-bold mb-4 text-primary">{t('investment_opportunities')}</h2>
@@ -143,7 +165,7 @@ export function InvestmentsDashboard() {
                                                 {product.riskLevel} {t('risk_level')}
                                             </span>
                                             <h3 className="text-lg font-bold mt-2">{product.name}</h3>
-                                            <p className="text-sm text-muted-foreground">{product.type}</p>
+                                            <p className="text-sm text-muted-foreground">{t(product.type)}</p>
                                         </div>
                                         <ShieldCheck className="text-emerald-600 w-6 h-6" />
                                     </div>
@@ -174,97 +196,114 @@ export function InvestmentsDashboard() {
                 </div>
             </div >
 
-            {riskModalOpen && <RiskAssessmentModal onClose={() => setRiskModalOpen(false)} />
-            }
-
+            {riskModalOpen && <RiskAssessmentModal onClose={() => setRiskModalOpen(false)} />}
 
             {/* Buy Modal */}
-            {
-                buyModalOpen && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                        <div className="bg-background p-6 rounded-lg w-full max-w-md space-y-4 shadow-xl border">
-                            <div className="flex justify-between items-center">
-                                <h2 className="text-xl font-bold">{t('invest_now')} - {buyModalOpen.product.name}</h2>
-                                <button onClick={() => setBuyModalOpen(null)}><X size={20} /></button>
-                            </div>
-                            <form onSubmit={handleBuy} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">{t('value_units')}</label>
-                                    <input
-                                        type="number"
-                                        autoFocus
-                                        className="w-full p-2 rounded-md border bg-input"
-                                        min={Number(buyModalOpen.product.minInvestment)}
-                                        value={amount || ''}
-                                        onChange={e => setAmount(Number(e.target.value))}
-                                        required
-                                    />
-                                    <p className="text-xs text-muted-foreground mt-1">{t('min_invest')}: {formatPrice(Number(buyModalOpen.product.minInvestment))}</p>
-                                </div>
-                                <div className="flex justify-end gap-2 pt-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => setBuyModalOpen(null)}
-                                        className="px-4 py-2 rounded-md hover:bg-muted"
-                                    >
-                                        {t('cancel')}
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={buyMutation.isPending}
-                                        className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 disabled:opacity-50"
-                                    >
-                                        {buyMutation.isPending ? t('processing') : t('confirm_investment')}
-                                    </button>
-                                </div>
-                            </form>
+            {buyModalOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-background p-6 rounded-lg w-full max-w-md space-y-4 shadow-xl border">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-xl font-bold">{t('invest_now')} - {buyModalOpen.product.name}</h2>
+                            <button onClick={() => setBuyModalOpen(null)}><X size={20} /></button>
                         </div>
+                        <form onSubmit={handleBuy} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1">{t('value_units')}</label>
+                                <input
+                                    type="number"
+                                    autoFocus
+                                    className="w-full p-2 rounded-md border bg-input"
+                                    min={Number(buyModalOpen.product.minInvestment)}
+                                    value={amount || ''}
+                                    onChange={e => setAmount(Number(e.target.value))}
+                                    required
+                                />
+                                <p className="text-xs text-muted-foreground mt-1">{t('min_invest')}: {formatPrice(Number(buyModalOpen.product.minInvestment))}</p>
+                            </div>
+                            <div className="flex justify-end gap-2 pt-2">
+                                <button type="button" onClick={() => setBuyModalOpen(null)} className="px-4 py-2 rounded-md hover:bg-muted">{t('cancel')}</button>
+                                <button type="submit" disabled={buyMutation.isPending} className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 disabled:opacity-50">
+                                    {buyMutation.isPending ? t('processing') : t('confirm_investment')}
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                )
-            }
+                </div>
+            )}
+
+            {/* Sell Modal */}
+            {sellModalOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-background p-6 rounded-lg w-full max-w-md space-y-4 shadow-xl border">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-xl font-bold text-red-600">{t('sell_investment')} - {sellModalOpen.item.asset.name}</h2>
+                            <button onClick={() => setSellModalOpen(null)}><X size={20} /></button>
+                        </div>
+                        <form onSubmit={handleSell} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1">{t('amount_to_sell')}</label>
+                                <input
+                                    type="number"
+                                    autoFocus
+                                    className="w-full p-2 rounded-md border bg-input"
+                                    max={Number(sellModalOpen.item.amount)}
+                                    value={amount || ''}
+                                    onChange={e => setAmount(Number(e.target.value))}
+                                    required
+                                />
+                                <p className="text-xs text-muted-foreground mt-1">{t('available')}: {formatPrice(Number(sellModalOpen.item.amount))}</p>
+                            </div>
+                            <div className="flex justify-end gap-2 pt-2">
+                                <button type="button" onClick={() => setSellModalOpen(null)} className="px-4 py-2 rounded-md hover:bg-muted">{t('cancel')}</button>
+                                <button type="submit" disabled={sellMutation.isPending} className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50">
+                                    {sellMutation.isPending ? t('processing') : t('confirm_sell')}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {/* Rebalance Modal */}
-            {
-                rebalanceModalOpen && rebalanceResult && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                        <div className="bg-background p-6 rounded-lg w-full max-w-lg space-y-4 shadow-xl border">
-                            <div className="flex justify-between items-center">
-                                <h2 className="text-xl font-bold flex items-center gap-2">
-                                    <Scale className="text-primary" /> Portfolio Analysis
-                                </h2>
-                                <button onClick={() => setRebalanceModalOpen(false)}><X size={20} /></button>
+            {rebalanceModalOpen && rebalanceResult && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-background p-6 rounded-lg w-full max-w-lg space-y-4 shadow-xl border">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-xl font-bold flex items-center gap-2">
+                                <Scale className="text-primary" /> Portfolio Analysis
+                            </h2>
+                            <button onClick={() => setRebalanceModalOpen(false)}><X size={20} /></button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-3 bg-muted rounded-lg">
+                                    <p className="text-xs text-muted-foreground">Current Allocation</p>
+                                    <p className="font-bold">Equity: {(Number(rebalanceResult.currentAllocation.Equity) * 100).toFixed(0)}%</p>
+                                    <p className="font-bold">Sukuk: {(Number(rebalanceResult.currentAllocation.Sukuk) * 100).toFixed(0)}%</p>
+                                </div>
+                                <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
+                                    <p className="text-xs text-muted-foreground">Target ({rebalanceResult.riskProfile})</p>
+                                    <p className="font-bold text-primary">Equity: {rebalanceResult.targetAllocation.Equity * 100}%</p>
+                                    <p className="font-bold text-primary">Sukuk: {rebalanceResult.targetAllocation.Sukuk * 100}%</p>
+                                </div>
                             </div>
 
-                            <div className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="p-3 bg-muted rounded-lg">
-                                        <p className="text-xs text-muted-foreground">Current Allocation</p>
-                                        <p className="font-bold">Equity: {(Number(rebalanceResult.currentAllocation.Equity) * 100).toFixed(0)}%</p>
-                                        <p className="font-bold">Sukuk: {(Number(rebalanceResult.currentAllocation.Sukuk) * 100).toFixed(0)}%</p>
-                                    </div>
-                                    <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
-                                        <p className="text-xs text-muted-foreground">Target ({rebalanceResult.riskProfile})</p>
-                                        <p className="font-bold text-primary">Equity: {rebalanceResult.targetAllocation.Equity * 100}%</p>
-                                        <p className="font-bold text-primary">Sukuk: {rebalanceResult.targetAllocation.Sukuk * 100}%</p>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <h3 className="font-bold mb-2 text-sm uppercase text-muted-foreground">Recommended Actions</h3>
-                                    <ul className="space-y-2">
-                                        {rebalanceResult.recommendedActions.map((action: string, idx: number) => (
-                                            <li key={idx} className="flex items-center gap-2 p-2 bg-card border rounded-md text-sm">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                                                {action}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
+                            <div>
+                                <h3 className="font-bold mb-2 text-sm uppercase text-muted-foreground">Recommended Actions</h3>
+                                <ul className="space-y-2">
+                                    {rebalanceResult.recommendedActions.map((action: string, idx: number) => (
+                                        <li key={idx} className="flex items-center gap-2 p-2 bg-card border rounded-md text-sm">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                            {action}
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
                         </div>
                     </div>
-                )
-            }
+                </div>
+            )}
         </div >
     );
 }

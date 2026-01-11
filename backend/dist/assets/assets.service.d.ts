@@ -17,4 +17,7 @@ export declare class AssetsService {
     createHolding(accountId: number, data: Partial<Holding>): Promise<Holding>;
     getPortfolioTargets(userId: string): Promise<PortfolioTarget[]>;
     setPortfolioTarget(userId: string, targets: Partial<PortfolioTarget>[]): Promise<PortfolioTarget[]>;
+    updateAccount(id: string, userId: string, dto: any): Promise<Account>;
+    removeAccount(id: string, userId: string): Promise<void>;
+    removeHolding(id: string, userId: string): Promise<void>;
 }

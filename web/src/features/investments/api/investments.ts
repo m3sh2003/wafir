@@ -55,7 +55,7 @@ async function fetchUserProfile(): Promise<{ riskProfile: string | null }> {
 
 async function buyInvestment(dto: BuyInvestmentDto): Promise<any> {
     const token = getToken();
-    const res = await fetch(`${API_URL}/investments/buy`, {
+    const res = await fetch(`${API_URL}/investments/invest`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -66,6 +66,23 @@ async function buyInvestment(dto: BuyInvestmentDto): Promise<any> {
     if (!res.ok) {
         const error = await res.json();
         throw new Error(error.message || 'Failed to buy investment');
+    }
+    return res.json();
+}
+
+async function sellInvestment(dto: BuyInvestmentDto): Promise<any> {
+    const token = getToken();
+    const res = await fetch(`${API_URL}/investments/sell`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(dto),
+    });
+    if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Failed to sell investment');
     }
     return res.json();
 }
@@ -109,6 +126,16 @@ export const useBuyInvestment = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: buyInvestment,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['userPortfolio'] });
+        },
+    });
+};
+
+export const useSellInvestment = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: sellInvestment,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['userPortfolio'] });
         },

@@ -15,6 +15,7 @@ export function AddTransactionPage() {
     const [formData, setFormData] = useState({
         description: '',
         amount: '',
+        currency: 'SAR',
         envelopeId: '',
         date: new Date().toISOString().split('T')[0]
     });
@@ -25,6 +26,7 @@ export function AddTransactionPage() {
             await createTransaction.mutateAsync({
                 description: formData.description,
                 amount: Number(formData.amount),
+                currency: formData.currency,
                 envelopeId: formData.envelopeId,
                 date: new Date(formData.date).toISOString()
             });
@@ -65,17 +67,33 @@ export function AddTransactionPage() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium mb-1">{t('value_units')}</label>
-                    <input
-                        type="number"
-                        required
-                        min="0.01"
-                        step="0.01"
-                        className="w-full p-2 rounded-md border bg-input"
-                        placeholder="0.00"
-                        value={formData.amount}
-                        onChange={e => setFormData({ ...formData, amount: e.target.value })}
-                    />
+                    <div className="flex gap-4">
+                        <div className="flex-1">
+                            <label className="block text-sm font-medium mb-1">{t('value_units')}</label>
+                            <input
+                                type="number"
+                                required
+                                min="0.01"
+                                step="0.01"
+                                className="w-full p-2 rounded-md border bg-input"
+                                placeholder="0.00"
+                                value={formData.amount}
+                                onChange={e => setFormData({ ...formData, amount: e.target.value })}
+                            />
+                        </div>
+                        <div className="w-24">
+                            <label className="block text-sm font-medium mb-1">{t('currency')}</label>
+                            <select
+                                className="w-full p-2 rounded-md border bg-input"
+                                value={formData.currency}
+                                onChange={e => setFormData({ ...formData, currency: e.target.value })}
+                            >
+                                <option value="SAR">SAR</option>
+                                <option value="USD">USD</option>
+                                <option value="EGP">EGP</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <div>

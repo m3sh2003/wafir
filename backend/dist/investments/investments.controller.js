@@ -31,6 +31,9 @@ let InvestmentsController = class InvestmentsController {
     invest(req, body) {
         return this.investmentsService.invest(req.user.userId, body.productId, body.amount);
     }
+    sell(req, body) {
+        return this.investmentsService.sellInvestment(req.user.userId, body.productId, body.amount);
+    }
     async getRiskProfile(req) {
         return this.investmentsService.getRiskProfile(req.user.userId);
     }
@@ -58,7 +61,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], InvestmentsController.prototype, "getPortfolio", null);
 __decorate([
-    (0, common_1.Post)('buy'),
+    (0, common_1.Post)('invest'),
     (0, swagger_1.ApiOperation)({ summary: 'Invest in a product' }),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
@@ -66,6 +69,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], InvestmentsController.prototype, "invest", null);
+__decorate([
+    (0, common_1.Post)('sell'),
+    (0, swagger_1.ApiOperation)({ summary: 'Sell an investment' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", void 0)
+], InvestmentsController.prototype, "sell", null);
 __decorate([
     (0, common_1.Get)('risk-profile'),
     (0, swagger_1.ApiOperation)({ summary: 'Get user risk profile' }),

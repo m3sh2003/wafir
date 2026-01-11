@@ -22,10 +22,16 @@ export class InvestmentsController {
         return this.investmentsService.getPortfolio(req.user.userId);
     }
 
-    @Post('buy')
+    @Post('invest')
     @ApiOperation({ summary: 'Invest in a product' })
     invest(@Request() req: any, @Body() body: { productId: string; amount: number }) {
         return this.investmentsService.invest(req.user.userId, body.productId, body.amount);
+    }
+
+    @Post('sell')
+    @ApiOperation({ summary: 'Sell an investment' })
+    sell(@Request() req: any, @Body() body: { productId: string; amount: number }) {
+        return this.investmentsService.sellInvestment(req.user.userId, body.productId, body.amount);
     }
 
     @Get('risk-profile')

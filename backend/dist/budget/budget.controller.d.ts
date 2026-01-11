@@ -11,6 +11,8 @@ export declare class BudgetController {
     remove(req: any, id: string): Promise<void>;
     createTransaction(req: any, dto: CreateTransactionDto): Promise<import("./entities/transaction.entity").Transaction>;
     findAllTransactions(req: any, id: string): Promise<import("./entities/transaction.entity").Transaction[]>;
+    updateTransaction(req: any, id: string, dto: Partial<CreateTransactionDto>): Promise<import("./entities/transaction.entity").Transaction>;
+    deleteTransaction(req: any, id: string): Promise<void>;
     findAllCategories(req: any): Promise<import("./entities/category.entity").Category[]>;
     createCategory(req: any, body: {
         name: string;

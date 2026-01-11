@@ -14,6 +14,7 @@ export function AddTransactionModal({ envelopeId, envelopeName, isOpen, onClose 
     const [formData, setFormData] = useState({
         description: '',
         amount: '',
+        currency: 'SAR',
         date: new Date().toISOString().split('T')[0],
     });
 
@@ -25,9 +26,10 @@ export function AddTransactionModal({ envelopeId, envelopeName, isOpen, onClose 
             envelopeId,
             description: formData.description,
             amount: Number(formData.amount),
+            currency: formData.currency,
             date: new Date(formData.date).toISOString(),
         });
-        setFormData({ description: '', amount: '', date: new Date().toISOString().split('T')[0] });
+        setFormData({ description: '', amount: '', currency: 'SAR', date: new Date().toISOString().split('T')[0] });
         onClose();
     };
 
@@ -58,16 +60,32 @@ export function AddTransactionModal({ envelopeId, envelopeName, isOpen, onClose 
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-1">Amount (SAR)</label>
-                        <input
-                            type="number"
-                            step="0.01"
-                            className="w-full p-2 rounded-md border bg-input"
-                            value={formData.amount}
-                            onChange={e => setFormData({ ...formData, amount: e.target.value })}
-                            placeholder="0.00"
-                            required
-                        />
+                        <div className="flex gap-4">
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium mb-1">Amount</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    className="w-full p-2 rounded-md border bg-input"
+                                    value={formData.amount}
+                                    onChange={e => setFormData({ ...formData, amount: e.target.value })}
+                                    placeholder="0.00"
+                                    required
+                                />
+                            </div>
+                            <div className="w-24">
+                                <label className="block text-sm font-medium mb-1">Currency</label>
+                                <select
+                                    className="w-full p-2 rounded-md border bg-input"
+                                    value={formData.currency}
+                                    onChange={e => setFormData({ ...formData, currency: e.target.value })}
+                                >
+                                    <option value="SAR">SAR</option>
+                                    <option value="USD">USD</option>
+                                    <option value="EGP">EGP</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div>
                         <label className="block text-sm font-medium mb-1">Date</label>

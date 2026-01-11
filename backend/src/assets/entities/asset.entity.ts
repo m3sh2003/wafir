@@ -9,7 +9,9 @@ export enum AssetType {
     CASH = 'Cash',
     ETF = 'ETF',
     REIT = 'REIT',
-    STOCK = 'Stock'
+    STOCK = 'Stock',
+    CERTIFICATE = 'Certificate',
+    CURRENCY = 'Currency'
 }
 
 export enum RiskLevel {

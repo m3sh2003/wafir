@@ -109,6 +109,21 @@ let BudgetService = class BudgetService {
         });
         return this.categoryRepository.save(category);
     }
+    async updateTransaction(id, userId, dto) {
+        const transaction = await this.transactionRepository.findOne({ where: { id, userId } });
+        if (!transaction)
+            throw new common_1.NotFoundException('Transaction not found');
+        Object.assign(transaction, dto);
+        if (dto.date)
+            transaction.date = new Date(dto.date);
+        return this.transactionRepository.save(transaction);
+    }
+    async removeTransaction(id, userId) {
+        const transaction = await this.transactionRepository.findOne({ where: { id, userId } });
+        if (!transaction)
+            throw new common_1.NotFoundException('Transaction not found');
+        await this.transactionRepository.remove(transaction);
+    }
 };
 exports.BudgetService = BudgetService;
 exports.BudgetService = BudgetService = __decorate([

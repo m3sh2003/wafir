@@ -51,6 +51,18 @@ export class BudgetController {
         return this.budgetService.findAllTransactionsForEnvelope(req.user.userId, id);
     }
 
+    @Patch('transactions/:id')
+    @ApiOperation({ summary: 'Update a transaction' })
+    updateTransaction(@Request() req: any, @Param('id') id: string, @Body() dto: Partial<CreateTransactionDto>) {
+        return this.budgetService.updateTransaction(id, req.user.userId, dto);
+    }
+
+    @Delete('transactions/:id')
+    @ApiOperation({ summary: 'Delete a transaction' })
+    deleteTransaction(@Request() req: any, @Param('id') id: string) {
+        return this.budgetService.removeTransaction(id, req.user.userId);
+    }
+
     @Get('categories')
     @ApiOperation({ summary: 'List categories' })
     findAllCategories(@Request() req: any) {

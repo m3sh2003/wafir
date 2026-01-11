@@ -1,16 +1,18 @@
 import { useState, type FormEvent } from 'react';
-import { useAccounts, useCreateAccount, useAddHolding, type Account, type Holding } from '../api/assets';
-import { Plus, Building2, Wallet, Landmark, Home, Loader2, X, Coins } from 'lucide-react';
+import { useAccounts, useCreateAccount, useAddHolding, useDeleteAccount, useDeleteHolding, type Account, type Holding } from '../api/assets';
+import { Plus, Building2, Wallet, Landmark, Home, Loader2, X, Coins, Trash2 } from 'lucide-react';
 
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../../contexts/SettingsContext';
 
 export function AssetsDashboard() {
     const { t } = useTranslation();
-    const { formatPrice } = useSettings();
+    const { formatPrice, usdRate, egpRate } = useSettings();
     const { data: accounts, isLoading } = useAccounts();
     const createAccount = useCreateAccount();
     const addHolding = useAddHolding();
+    const deleteAccount = useDeleteAccount();
+    const deleteHolding = useDeleteHolding();
 
     // Modals
     const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
@@ -48,9 +50,30 @@ export function AssetsDashboard() {
         }
     };
 
+    const handleDeleteAccount = async (id: number) => {
+        if (confirm(t('confirm_delete_account') || 'Delete this account?')) {
+            await deleteAccount.mutateAsync(id);
+        }
+    };
+
+    const handleDeleteHolding = async (id: number) => {
+        if (confirm(t('confirm_delete_holding') || 'Delete this asset?')) {
+            await deleteHolding.mutateAsync(id);
+        }
+    };
+
     // Helper to calculate account total
     const getAccountTotal = (h: Holding[] = []) => h.reduce((sum, item) => sum + Number(item.units), 0);
-    const totalNetWorth = accounts?.reduce((sum, acc) => sum + getAccountTotal(acc.holdings), 0) || 0;
+
+    // Normalize to SAR for global total
+    const getNormalizedAccountTotal = (acc: Account) => {
+        const total = getAccountTotal(acc.holdings);
+        if (acc.currencyCode === 'USD') return total * usdRate;
+        if (acc.currencyCode === 'EGP') return total / egpRate;
+        return total;
+    };
+
+    const totalNetWorth = accounts?.reduce((sum, acc) => sum + getNormalizedAccountTotal(acc), 0) || 0;
 
     const getIcon = (type: string) => {
         if (type === 'bank') return <Landmark className="w-5 h-5" />;
@@ -89,7 +112,7 @@ export function AssetsDashboard() {
             {/* Accounts Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {accounts?.map((acc) => (
-                    <div key={acc.id} className="bg-card text-card-foreground rounded-lg border shadow-sm flex flex-col hover:border-primary/50 transition-colors">
+                    <div key={acc.id} className="bg-card text-card-foreground rounded-lg border shadow-sm flex flex-col hover:border-primary/50 transition-colors group/card">
                         {/* Card Header */}
                         <div className="p-6 pb-3 flex justify-between items-start border-b border-border/50">
                             <div className="flex items-center gap-3">
@@ -98,11 +121,18 @@ export function AssetsDashboard() {
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-lg">{acc.name}</h3>
-                                    <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded uppercase tracking-wider">{acc.type}</span>
+                                    <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded uppercase tracking-wider">{t(acc.type)}</span>
                                 </div>
                             </div>
-                            <div className="text-right">
+                            <div className="text-right flex flex-col items-end gap-1">
                                 <p className="font-bold text-xl dir-ltr">{Number(getAccountTotal(acc.holdings)).toLocaleString()} <span className="text-xs font-normal text-muted-foreground">{acc.currencyCode}</span></p>
+                                <button
+                                    onClick={() => handleDeleteAccount(acc.id)}
+                                    className="text-destructive/70 hover:text-destructive transition-colors p-1"
+                                    title={t('delete_account')}
+                                >
+                                    <Trash2 size={16} />
+                                </button>
                             </div>
                         </div>
 
@@ -110,14 +140,23 @@ export function AssetsDashboard() {
                         <div className="p-6 pt-4 flex-1 space-y-3">
                             {acc.holdings && acc.holdings.length > 0 ? (
                                 acc.holdings.map(h => (
-                                    <div key={h.id} className="flex justify-between items-center text-sm p-2 rounded-md hover:bg-muted/50 transition-colors">
+                                    <div key={h.id} className="flex justify-between items-center text-sm p-2 rounded-md hover:bg-muted/50 transition-colors group/holding">
                                         <div className="flex items-center gap-2">
                                             <Coins className="w-4 h-4 text-muted-foreground" />
                                             <span>{h.instrumentCode}</span>
                                             {h.isPrimaryHome && <span className="text-[10px] bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">Home</span>}
                                             {!h.isShariaCompliant && <span className="text-[10px] bg-red-100 text-red-800 px-1.5 py-0.5 rounded">Not Compliant</span>}
                                         </div>
-                                        <span className="font-mono">{Number(h.units).toLocaleString()}</span>
+                                        <div className="flex items-center gap-3">
+                                            <span className="font-mono">{Number(h.units).toLocaleString()}</span>
+                                            <button
+                                                onClick={() => handleDeleteHolding(h.id)}
+                                                className="text-red-400 hover:text-red-600 transition-opacity p-1"
+                                                title={t('delete_asset')}
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </div>
                                     </div>
                                 ))
                             ) : (
@@ -166,10 +205,10 @@ export function AssetsDashboard() {
                                         value={newAccount.type}
                                         onChange={e => setNewAccount({ ...newAccount, type: e.target.value })}
                                     >
-                                        <option value="bank">Bank</option>
-                                        <option value="broker">Broker</option>
-                                        <option value="cash">Cash</option>
-                                        <option value="real_estate">Real Estate</option>
+                                        <option value="bank">{t('bank')}</option>
+                                        <option value="broker">{t('broker')}</option>
+                                        <option value="cash">{t('Cash')}</option>
+                                        <option value="real_estate">{t('real_estate')}</option>
                                     </select>
                                 </div>
                                 <div>
@@ -181,6 +220,7 @@ export function AssetsDashboard() {
                                     >
                                         <option value="SAR">SAR</option>
                                         <option value="USD">USD</option>
+                                        <option value="EGP">EGP</option>
                                     </select>
                                 </div>
                             </div>

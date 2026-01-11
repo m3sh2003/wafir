@@ -1,0 +1,52 @@
+Database connected for Arabic seeding...
+User found. Updating locale...
+Seeding Arabic Envelopes...
+QueryFailedError: update or delete on table "envelopes" violates foreign key constraint "FK_aa0d482b268e092f1165ec8509b" on table "transactions"
+    at PostgresQueryRunner.query (F:\Wafir\backend\node_modules\typeorm\src\driver\postgres\PostgresQueryRunner.ts:325:19)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async DeleteQueryBuilder.execute (F:\Wafir\backend\node_modules\src\query-builder\DeleteQueryBuilder.ts:77:33)
+    at async bootstrap (F:\Wafir\backend\src\seeds\seed-arabic.ts:76:5) {
+  query: 'DELETE FROM "envelopes" WHERE "userId" = $1',
+  parameters: [ '67de4d17-b9d2-4aa0-b2a3-e0c62871c4f8' ],
+  driverError: error: update or delete on table "envelopes" violates foreign key constraint "FK_aa0d482b268e092f1165ec8509b" on table "transactions"
+      at F:\Wafir\backend\node_modules\pg\lib\client.js:545:17
+      at processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async PostgresQueryRunner.query (F:\Wafir\backend\node_modules\typeorm\src\driver\postgres\PostgresQueryRunner.ts:254:25)
+      at async DeleteQueryBuilder.execute (F:\Wafir\backend\node_modules\src\query-builder\DeleteQueryBuilder.ts:77:33)
+      at async bootstrap (F:\Wafir\backend\src\seeds\seed-arabic.ts:76:5) {
+    length: 345,
+    severity: 'ERROR',
+    code: '23503',
+    detail: 'Key (id)=(a1bb0702-4517-498e-b988-ebb5f1534f63) is still referenced from table "transactions".',
+    hint: undefined,
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: 'public',
+    table: 'transactions',
+    column: undefined,
+    dataType: undefined,
+    constraint: 'FK_aa0d482b268e092f1165ec8509b',
+    file: 'ri_triggers.c',
+    line: '2609',
+    routine: 'ri_ReportViolation'
+  },
+  length: 345,
+  severity: 'ERROR',
+  code: '23503',
+  detail: 'Key (id)=(a1bb0702-4517-498e-b988-ebb5f1534f63) is still referenced from table "transactions".',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'transactions',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'FK_aa0d482b268e092f1165ec8509b',
+  file: 'ri_triggers.c',
+  line: '2609',
+  routine: 'ri_ReportViolation'
+}

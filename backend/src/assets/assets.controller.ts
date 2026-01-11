@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Request, Patch, Delete } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AssetsService } from './assets.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -32,5 +32,23 @@ export class AssetsController {
     @ApiOperation({ summary: 'Add a holding to an account' })
     addHolding(@Param('id') accountId: number, @Body() body: any) {
         return this.assetsService.createHolding(accountId, body);
+    }
+
+    @Patch('accounts/:id')
+    @ApiOperation({ summary: 'Update an account' })
+    updateAccount(@Request() req: any, @Param('id') id: string, @Body() body: any) {
+        return this.assetsService.updateAccount(id, req.user.userId, body);
+    }
+
+    @Delete('accounts/:id')
+    @ApiOperation({ summary: 'Delete an account' })
+    deleteAccount(@Request() req: any, @Param('id') id: string) {
+        return this.assetsService.removeAccount(id, req.user.userId);
+    }
+
+    @Delete('holdings/:id')
+    @ApiOperation({ summary: 'Delete a holding' })
+    deleteHolding(@Request() req: any, @Param('id') id: string) {
+        return this.assetsService.removeHolding(id, req.user.userId);
     }
 }

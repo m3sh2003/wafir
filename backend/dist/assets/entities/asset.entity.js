@@ -22,6 +22,8 @@ var AssetType;
     AssetType["ETF"] = "ETF";
     AssetType["REIT"] = "REIT";
     AssetType["STOCK"] = "Stock";
+    AssetType["CERTIFICATE"] = "Certificate";
+    AssetType["CURRENCY"] = "Currency";
 })(AssetType || (exports.AssetType = AssetType = {}));
 var RiskLevel;
 (function (RiskLevel) {
