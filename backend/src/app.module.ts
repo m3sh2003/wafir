@@ -25,6 +25,12 @@ import { RulesModule } from './rules/rules.module';
       database: process.env.DB_NAME || 'wafir',
       autoLoadEntities: true,
       synchronize: true, // Only for dev!
+      ssl: process.env.NODE_ENV === 'production',
+      extra: process.env.NODE_ENV === 'production' ? {
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      } : {},
     }),
     AuthModule,
     UsersModule,
