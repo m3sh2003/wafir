@@ -4,7 +4,7 @@ import { Loader2, Trash2, Edit2, X, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 
-import { format } from 'date-fns';
+// import { format } from 'date-fns';
 import { useSettings } from '../../../contexts/SettingsContext';
 
 interface TransactionListProps {
@@ -46,8 +46,6 @@ export function TransactionList({ envelopeId }: TransactionListProps) {
         });
         setEditingId(null);
     };
-
-    const getCurrency = (t: any) => t.currency || 'SAR';
 
     return (
         <div className="space-y-2">

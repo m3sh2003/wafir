@@ -1,9 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEnvelopes } from '../../budget/api/budget';
 import { updateOnboarding, RiskProfile } from '../api/users';
-import { Loader2, ArrowRight, Wallet, TrendingUp, CheckCircle } from 'lucide-react';
+import { Loader2, ArrowRight, CheckCircle } from 'lucide-react';
 
 export function OnboardingPage() {
     const navigate = useNavigate();

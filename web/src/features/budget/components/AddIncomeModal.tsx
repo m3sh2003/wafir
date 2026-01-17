@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import { useCreateTransaction } from '../api/budget';

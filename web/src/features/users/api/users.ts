@@ -3,11 +3,13 @@ import { getToken } from '../../auth/api/auth';
 
 const API_URL = '/api';
 
-export enum RiskProfile {
-    CONSERVATIVE = 'Conservative',
-    BALANCED = 'Balanced',
-    AGGRESSIVE = 'Aggressive'
-}
+export const RiskProfile = {
+    CONSERVATIVE: 'Conservative',
+    BALANCED: 'Balanced',
+    AGGRESSIVE: 'Aggressive'
+} as const;
+
+export type RiskProfile = typeof RiskProfile[keyof typeof RiskProfile];
 
 export interface UpdateOnboardingDto {
     riskProfile: RiskProfile;

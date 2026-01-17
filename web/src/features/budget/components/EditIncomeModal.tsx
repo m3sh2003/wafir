@@ -1,7 +1,7 @@
-import { useState, FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Save } from 'lucide-react';
-import { updateOnboarding, getUserProfile, RiskProfile } from '../../users/api/users';
+import { X } from 'lucide-react';
+import { updateOnboarding, RiskProfile } from '../../users/api/users';
 import { useSettings } from '../../../contexts/SettingsContext';
 
 interface EditIncomeModalProps {

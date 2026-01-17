@@ -14,6 +14,7 @@ interface SettingsState {
         email: string;
         phone: string;
         age: number;
+        monthlyIncome: number; // Added field
         riskTolerance: 'conservative' | 'balanced' | 'growth' | 'aggressive' | 'none';
     };
     security: {
@@ -46,7 +47,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const [egpRate, setEgpRateState] = useState<number>(() => Number(localStorage.getItem('wafir_egp_rate')) || 13.0);
     const [profile, setProfileState] = useState<SettingsState['profile']>(() => {
         const saved = localStorage.getItem('wafir_profile');
-        return saved ? JSON.parse(saved) : { name: '', email: '', phone: '', age: 0, riskTolerance: 'none' };
+        return saved ? JSON.parse(saved) : { name: '', email: '', phone: '', age: 0, monthlyIncome: 0, riskTolerance: 'none' };
     });
     const [security, setSecurityState] = useState<SettingsState['security']>(() => {
         const saved = localStorage.getItem('wafir_security');

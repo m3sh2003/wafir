@@ -9,7 +9,7 @@ export function SettingsPage() {
     const {
         language, setLanguage,
         theme, setTheme,
-        currency, setCurrency,
+        currency, // setCurrency,
         usdRate, setUsdRate,
         egpRate, setEgpRate,
         profile, setProfile,
