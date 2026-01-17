@@ -31,8 +31,7 @@ COPY package*.json ./
 
 # Install only production dependencies with cache mount
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev && \
-    npm cache clean --force
+    npm ci --omit=dev
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
