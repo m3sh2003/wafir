@@ -1,6 +1,7 @@
 export declare class CreateTransactionDto {
     description: string;
     amount: number;
-    envelopeId: string;
+    envelopeId?: string;
     date?: string;
+    type?: string;
 }

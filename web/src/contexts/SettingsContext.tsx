@@ -30,6 +30,7 @@ interface SettingsContextType extends SettingsState {
     setSecurity: (security: SettingsState['security']) => void;
     convertPrice: (amountInSar: number) => number;
     formatPrice: (amountInSar: number) => string;
+    hydrateSettings: () => Promise<void>;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -111,17 +112,47 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         }).format(val);
     }
 
+    const hydrateSettings = async () => {
+        const token = getToken();
+        if (!token) return;
+        try {
+            // Avoid circular dependency issues by dynamic import if needed, or ensuring imports are clean
+            const { getUserProfile } = await import('../features/users/api/users');
+            const user = await getUserProfile();
+            if (user && user.settings) {
+                const s = user.settings;
+                if (s.currency) {
+                    setCurrencyState(s.currency);
+                    localStorage.setItem('wafir_currency', s.currency);
+                }
+                if (s.language) {
+                    setLanguageState(s.language);
+                    localStorage.setItem('wafir_lang', s.language);
+                    i18n.changeLanguage(s.language);
+                    document.dir = s.language === 'ar' ? 'rtl' : 'ltr';
+                }
+                if (s.theme) {
+                    setThemeState(s.theme);
+                    localStorage.setItem('wafir_theme', s.theme);
+                    if (s.theme === 'dark') document.documentElement.classList.add('dark');
+                    else document.documentElement.classList.remove('dark');
+                }
+            }
+        } catch (e) { console.error('Failed to hydrate settings', e); }
+    }
+
     // Init Effect
     useEffect(() => {
         setLanguage(language);
         setTheme(theme);
+        hydrateSettings(); // Try hydrating on mount
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <SettingsContext.Provider value={{
             language, theme, currency, usdRate, egpRate, profile, security,
             setLanguage, setTheme, setCurrency, setUsdRate, setEgpRate, setProfile, setSecurity,
-            convertPrice, formatPrice
+            convertPrice, formatPrice, hydrateSettings
         }}>
             {children}
         </SettingsContext.Provider>
@@ -133,3 +164,61 @@ export const useSettings = () => {
     if (!context) throw new Error('useSettings must be used within SettingsProvider');
     return context;
 };
+import { updateSettings } from '../features/users/api/users';
+import { getToken } from '../features/auth/api/auth';
+
+// ... (existing imports, but add updateSettings)
+
+// Modify helper functions to call API
+const saveToBackend = async (key: string, value: any) => {
+    if (!getToken()) return; // Only sync if logged in
+    try {
+        if (key === 'currency') {
+            await updateCurrency(value);
+            // alert('Debug: Currency saved successfully to ' + value); 
+        } else {
+            await updateSettings({ [key]: value });
+        }
+    } catch (e) {
+        console.error('Failed to sync settings to backend', e);
+        // alert('Debug: Failed to save currency');
+    }
+}
+
+const setLanguage = (lang: 'ar' | 'en') => {
+    setLanguageState(lang);
+    i18n.changeLanguage(lang);
+    document.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+    localStorage.setItem('wafir_lang', lang);
+    saveToBackend('language', lang);
+};
+
+const setTheme = (t: 'light' | 'dark') => {
+    setThemeState(t);
+    if (t === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('wafir_theme', t);
+    saveToBackend('theme', t);
+};
+
+const setCurrency = (c: 'SAR' | 'USD' | 'EGP') => {
+    setCurrencyState(c);
+    localStorage.setItem('wafir_currency', c);
+    saveToBackend('currency', c);
+}
+
+const setUsdRate = (r: number) => {
+    setUsdRateState(r);
+    localStorage.setItem('wafir_usd_rate', r.toString());
+    saveToBackend('usdRate', r);
+}
+
+const setEgpRate = (r: number) => {
+    setEgpRateState(r);
+    localStorage.setItem('wafir_egp_rate', r.toString());
+    saveToBackend('egpRate', r);
+}

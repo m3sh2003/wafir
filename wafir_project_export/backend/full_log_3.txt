@@ -1,0 +1,85 @@
+Database connected for Arabic seeding...
+User found. Updating locale...
+Seeding Arabic Envelopes...
+Created envelope: السكن
+Created envelope: المأكل والمشرب
+Created envelope: النقل والمواصلات
+Created envelope: الفواتير والخدمات
+Created envelope: الترفيه
+Created envelope: التسوق
+Created envelope: المطاعم والمقاهي
+Created envelope: العناية الشخصية
+Created envelope: صندوق الطوارئ
+Created envelope: الاستثمار
+Created envelope: الادخار
+Created envelope: الصدقة
+Created envelope: زكاة المال
+Created envelope: الهدايا
+Created envelope: السفر
+Seeding Assets...
+QueryFailedError: null value in column "portfolioId" of relation "assets" violates not-null constraint
+    at PostgresQueryRunner.query (F:\Wafir\backend\node_modules\typeorm\src\driver\postgres\PostgresQueryRunner.ts:325:19)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async InsertQueryBuilder.execute (F:\Wafir\backend\node_modules\src\query-builder\InsertQueryBuilder.ts:164:33)
+    at async SubjectExecutor.executeInsertOperations (F:\Wafir\backend\node_modules\src\persistence\SubjectExecutor.ts:435:42)
+    at async SubjectExecutor.execute (F:\Wafir\backend\node_modules\src\persistence\SubjectExecutor.ts:137:9)
+    at async EntityPersistExecutor.execute (F:\Wafir\backend\node_modules\src\persistence\EntityPersistExecutor.ts:182:21)
+    at async bootstrap (F:\Wafir\backend\src\seeds\seed-arabic.ts:196:9) {
+  query: 'INSERT INTO "assets"("id", "name", "symbol", "type", "riskLevel", "currentPrice", "expectedReturn", "minInvestment", "description", "isZakatable", "isShariaCompliant", "createdAt", "updatedAt") VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, DEFAULT, DEFAULT) RETURNING "id", "type", "riskLevel", "currentPrice", "isZakatable", "isShariaCompliant", "createdAt", "updatedAt"',
+  parameters: [
+    'مصرف الراجحي',
+    '1120.SR',
+    'Equity',
+    'Medium',
+    88.5,
+    8.5,
+    100,
+    'أكبر مصرف إسلامي في العالم من حيث القيمة السوقية.',
+    1,
+    1
+  ],
+  driverError: error: null value in column "portfolioId" of relation "assets" violates not-null constraint
+      at F:\Wafir\backend\node_modules\pg\lib\client.js:545:17
+      at processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async PostgresQueryRunner.query (F:\Wafir\backend\node_modules\typeorm\src\driver\postgres\PostgresQueryRunner.ts:254:25)
+      at async InsertQueryBuilder.execute (F:\Wafir\backend\node_modules\src\query-builder\InsertQueryBuilder.ts:164:33)
+      at async SubjectExecutor.executeInsertOperations (F:\Wafir\backend\node_modules\src\persistence\SubjectExecutor.ts:435:42)
+      at async SubjectExecutor.execute (F:\Wafir\backend\node_modules\src\persistence\SubjectExecutor.ts:137:9)
+      at async EntityPersistExecutor.execute (F:\Wafir\backend\node_modules\src\persistence\EntityPersistExecutor.ts:182:21)
+      at async bootstrap (F:\Wafir\backend\src\seeds\seed-arabic.ts:196:9) {
+    length: 459,
+    severity: 'ERROR',
+    code: '23502',
+    detail: 'Failing row contains (93f00f80-975d-4af4-9e74-dd70618c8c0d, مصرف الراجحي, 1120.SR, Medium, 88.50, 8.50, 100.00, أكبر مصرف إسلامي في العالم من حيث ا..., t, t, 2026-01-11 19:40:35.171303, 2026-01-11 19:40:35.171303, 0.0000, t, f, null, Equity).',
+    hint: undefined,
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: 'public',
+    table: 'assets',
+    column: 'portfolioId',
+    dataType: undefined,
+    constraint: undefined,
+    file: 'execMain.c',
+    line: '2023',
+    routine: 'ExecConstraints'
+  },
+  length: 459,
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (93f00f80-975d-4af4-9e74-dd70618c8c0d, مصرف الراجحي, 1120.SR, Medium, 88.50, 8.50, 100.00, أكبر مصرف إسلامي في العالم من حيث ا..., t, t, 2026-01-11 19:40:35.171303, 2026-01-11 19:40:35.171303, 0.0000, t, f, null, Equity).',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'assets',
+  column: 'portfolioId',
+  dataType: undefined,
+  constraint: undefined,
+  file: 'execMain.c',
+  line: '2023',
+  routine: 'ExecConstraints'
+}

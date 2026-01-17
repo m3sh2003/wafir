@@ -12,13 +12,18 @@ export class CreateTransactionDto {
     @IsNumber()
     amount: number;
 
-    @ApiProperty()
-    @IsNotEmpty()
+    @ApiProperty({ required: false })
+    @IsOptional()
     @IsUUID()
-    envelopeId: string;
+    envelopeId?: string;
 
     @ApiProperty()
     @IsOptional()
     @IsDateString()
     date?: string;
+
+    @ApiProperty({ required: false, enum: ['INCOME', 'EXPENSE', 'TRANSFER'] })
+    @IsOptional()
+    @IsString()
+    type?: string;
 }

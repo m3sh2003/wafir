@@ -32,6 +32,7 @@ export interface CreateTransactionDto {
     envelopeId: string;
     date?: string;
     currency?: string;
+    type?: 'INCOME' | 'EXPENSE';
 }
 
 export interface Category {
@@ -69,6 +70,15 @@ async function createEnvelope(dto: CreateEnvelopeDto): Promise<Envelope> {
 async function fetchTransactions(envelopeId: string): Promise<Transaction[]> {
     const token = getToken();
     const res = await fetch(`${API_URL}/budget/envelopes/${envelopeId}/transactions`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed to fetch transactions');
+    return res.json();
+}
+
+async function fetchAllTransactions(): Promise<Transaction[]> {
+    const token = getToken();
+    const res = await fetch(`${API_URL}/budget/transactions`, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!res.ok) throw new Error('Failed to fetch transactions');
@@ -139,12 +149,20 @@ export const useTransactions = (envelopeId: string) => {
     });
 };
 
+export const useAllTransactions = () => {
+    return useQuery({
+        queryKey: ['transactions', 'all'],
+        queryFn: fetchAllTransactions,
+    });
+};
+
 export const useCreateTransaction = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: createTransaction,
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['transactions', variables.envelopeId] });
+            queryClient.invalidateQueries({ queryKey: ['transactions', 'all'] }); // Fix: Invalidate global transactions
             queryClient.invalidateQueries({ queryKey: ['envelopes'] });
         },
     });

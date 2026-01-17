@@ -31,12 +31,20 @@ export class ZakatService {
         const holdings = await this.assetsService.findAllHoldings(userId);
         const accounts = await this.assetsService.findAllAccounts(userId);
 
+        // Helper for currency conversion (Same as InvestmentsService)
+        const toSAR = (amount: number, currency: string) => {
+            if (!currency || currency === 'SAR') return amount;
+            if (currency === 'USD') return amount * 3.75;
+            if (currency === 'EGP') return amount * 0.08; // Approx rate
+            return amount;
+        };
+
         // 1. Calculate Zakatable Cash (Accounts)
         let cashTotalSAR = 0;
-        const zakatableAccountTypes = ['bank', 'cash', 'certificate']; // Lowercase matching enum usually
+        const zakatableAccountTypes = ['bank', 'cash', 'certificate', 'broker'];
         for (const account of accounts) {
             if (zakatableAccountTypes.includes(account.type.toLowerCase())) {
-                cashTotalSAR += Number(account.balance);
+                cashTotalSAR += toSAR(Number(account.balance), account.currencyCode);
             }
         }
 
@@ -48,14 +56,32 @@ export class ZakatService {
             // Check exemptions
             if (holding.isPrimaryHome) continue;
 
-            // Check Asset Zakatability
+            const currency = holding.account?.currencyCode || 'SAR';
+
+            // Manual Holding (No linked Asset entity) - Assume Zakatable
+            if (!holding.asset) {
+                const value = Number(holding.units); // Assume units = value for manual entries if no price known
+                const valueSAR = toSAR(value, currency);
+                investmentsTotalSAR += valueSAR;
+                details.push({
+                    name: holding.instrumentCode || 'Manual Asset',
+                    amount: valueSAR,
+                    type: 'Manual',
+                    originalCurrency: currency
+                });
+                continue;
+            }
+
+            // Linked Asset Zakatability
             if (holding.asset && holding.asset.isZakatable) {
-                const value = Number(holding.units) * Number(holding.asset.currentPrice);
-                investmentsTotalSAR += value;
+                const rawValue = Number(holding.units) * Number(holding.asset.currentPrice);
+                const valueSAR = toSAR(rawValue, currency);
+                investmentsTotalSAR += valueSAR;
                 details.push({
                     name: holding.asset.name,
-                    amount: value,
-                    type: holding.asset.type
+                    amount: valueSAR,
+                    type: holding.asset.type,
+                    originalCurrency: currency
                 });
             }
         }

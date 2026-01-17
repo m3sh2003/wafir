@@ -1,4 +1,5 @@
 import { UsersService } from './users.service';
+import { UpdateOnboardingDto } from './dto/update-onboarding.dto';
 export declare class UsersController {
     private usersService;
     constructor(usersService: UsersService);
@@ -11,4 +12,9 @@ export declare class UsersController {
         createdAt: Date;
         updatedAt: Date;
     } | null>;
+    updateOnboarding(req: any, dto: UpdateOnboardingDto): Promise<import("./entities/user.entity").User>;
+    updateSettings(req: any, dto: any): Promise<import("./entities/user.entity").User>;
+    updateCurrency(req: any, body: {
+        currency: string;
+    }): Promise<import("./entities/user.entity").User>;
 }

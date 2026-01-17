@@ -55,11 +55,14 @@ let AuthService = class AuthService {
         this.jwtService = jwtService;
     }
     async validateUser(email, pass) {
+        console.log(`[AuthDebug] Validating user: '${email}' with pass length: ${pass?.length}`);
         const user = await this.usersService.findOneByEmail(email);
-        console.log(`[Auth] Validating ${email}. Found: ${!!user}`);
+        console.log(`[AuthDebug] User found? ${!!user}`);
         if (user) {
+            console.log(`[AuthDebug] DB Email: '${user.email}'`);
+            console.log(`[AuthDebug] PasswordHash exists? ${!!user.passwordHash}`);
             const isMatch = user.passwordHash ? await bcrypt.compare(pass, user.passwordHash) : false;
-            console.log(`[Auth] Hash present: ${!!user.passwordHash}, Match: ${isMatch}`);
+            console.log(`[AuthDebug] Password Match Result: ${isMatch}`);
             if (isMatch) {
                 const { passwordHash, ...result } = user;
                 return result;

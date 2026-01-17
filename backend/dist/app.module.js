@@ -30,7 +30,7 @@ exports.AppModule = AppModule = __decorate([
             typeorm_1.TypeOrmModule.forRoot({
                 type: 'postgres',
                 host: process.env.DB_HOST || '127.0.0.1',
-                port: 5432,
+                port: parseInt(process.env.DB_PORT || '5432', 10),
                 username: process.env.DB_USER || 'postgres',
                 password: process.env.DB_PASSWORD || 'postgres',
                 database: process.env.DB_NAME || 'wafir',
@@ -44,7 +44,7 @@ exports.AppModule = AppModule = __decorate([
             scheduler_module_1.SchedulerModule,
             zakat_module_1.ZakatModule,
             assets_module_1.AssetsModule,
-            rules_module_1.RulesModule
+            rules_module_1.RulesModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

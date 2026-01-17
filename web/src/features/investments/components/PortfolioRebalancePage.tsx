@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { useRebalancePortfolio } from '../api/investments';
+import { useTranslation } from 'react-i18next';
 import { Loader2, ArrowRight, CheckCircle2, AlertTriangle, PieChart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function PortfolioRebalancePage() {
+    const { t } = useTranslation();
     const { mutate: rebalance, data: rebalanceResult, isPending, error } = useRebalancePortfolio();
 
     useEffect(() => {
@@ -33,20 +35,20 @@ export function PortfolioRebalancePage() {
     return (
         <div className="p-6 space-y-8 animate-in fade-in max-w-4xl mx-auto">
             <div className="flex items-center gap-2 mb-6">
-                <Link to="/investments" className="text-muted-foreground hover:text-primary transition-colors">Investments</Link>
+                <Link to="/investments" className="text-muted-foreground hover:text-primary transition-colors">{t('investments')}</Link>
                 <span className="text-muted-foreground">/</span>
-                <span className="font-bold">Portfolio Rebalancing</span>
+                <span className="font-bold">{t('rebalance')}</span>
             </div>
 
             <div className="flex justify-between items-start">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-primary mb-2">Portfolio Health Check</h1>
+                    <h1 className="text-3xl font-bold tracking-tight text-primary mb-2">{t('portfolio_health_check')}</h1>
                     <p className="text-muted-foreground">
-                        Optimization based on your <strong>{rebalanceResult?.riskProfile}</strong> risk profile.
+                        {t('optimized_based_on', { risk: t(rebalanceResult?.riskProfile || 'Balanced') })}
                     </p>
                 </div>
                 <div className="text-right">
-                    <div className="text-sm text-muted-foreground">Total Portfolio Value</div>
+                    <div className="text-sm text-muted-foreground">{t('total_portfolio_value')}</div>
                     <div className="text-2xl font-bold font-mono">{Number(rebalanceResult?.totalValue || 0).toLocaleString()} SAR</div>
                 </div>
             </div>
@@ -57,32 +59,32 @@ export function PortfolioRebalancePage() {
                     <div className="bg-card p-6 rounded-xl border shadow-sm space-y-6">
                         <h3 className="font-semibold flex items-center gap-2">
                             <PieChart className="w-5 h-5 text-primary" />
-                            Allocation Strategy
+                            {t('allocation_strategy')}
                         </h3>
 
                         <div className="space-y-4">
                             <div>
                                 <div className="flex justify-between text-sm mb-1">
-                                    <span>Equity (Stocks/ETF)</span>
+                                    <span>{t('equity_etf')}</span>
                                     <span className="font-mono">
-                                        Current: {(Number(rebalanceResult.currentAllocation.Equity) * 100).toFixed(0)}%
+                                        {t('current')}: {(Number(rebalanceResult.currentAllocation.Equity) * 100).toFixed(0)}%
                                         <span className="text-muted-foreground mx-1">/</span>
-                                        Target: {(rebalanceResult.targetAllocation.Equity * 100).toFixed(0)}%
+                                        {t('target')}: {(rebalanceResult.targetAllocation.Equity * 100).toFixed(0)}%
                                     </span>
                                 </div>
                                 <div className="h-2 bg-secondary rounded-full overflow-hidden flex">
-                                    <div className="bg-blue-500 h-full transition-all" style={{ width: `${rebalanceResult.currentAllocation.Equity * 100}%` }} title="Current" />
-                                    <div className="bg-blue-200 h-full w-1 z-10" style={{ marginLeft: `-${(rebalanceResult.currentAllocation.Equity * 100)}%`, left: `${rebalanceResult.targetAllocation.Equity * 100}%`, position: 'relative' }} title="Target Marker" />
+                                    <div className="bg-blue-500 h-full transition-all" style={{ width: `${rebalanceResult.currentAllocation.Equity * 100}%` }} title={t('current')} />
+                                    <div className="bg-blue-200 h-full w-1 z-10" style={{ marginLeft: `-${(rebalanceResult.currentAllocation.Equity * 100)}%`, left: `${rebalanceResult.targetAllocation.Equity * 100}%`, position: 'relative' }} title={t('target')} />
                                 </div>
                             </div>
 
                             <div>
                                 <div className="flex justify-between text-sm mb-1">
-                                    <span>Fixed Income (Sukuk)</span>
+                                    <span>{t('fixed_income_sukuk')}</span>
                                     <span className="font-mono">
-                                        Current: {(Number(rebalanceResult.currentAllocation.Sukuk) * 100).toFixed(0)}%
+                                        {t('current')}: {(Number(rebalanceResult.currentAllocation.Sukuk) * 100).toFixed(0)}%
                                         <span className="text-muted-foreground mx-1">/</span>
-                                        Target: {(rebalanceResult.targetAllocation.Sukuk * 100).toFixed(0)}%
+                                        {t('target')}: {(rebalanceResult.targetAllocation.Sukuk * 100).toFixed(0)}%
                                     </span>
                                 </div>
                                 <div className="h-2 bg-secondary rounded-full overflow-hidden">
@@ -96,7 +98,7 @@ export function PortfolioRebalancePage() {
                     <div className="bg-card p-6 rounded-xl border shadow-sm bg-primary/5 border-primary/20">
                         <h3 className="font-semibold flex items-center gap-2 mb-4 text-primary">
                             <CheckCircle2 className="w-5 h-5" />
-                            Recommended Actions
+                            {t('recommended_actions')}
                         </h3>
 
                         {rebalanceResult.recommendedActions.length === 0 || (rebalanceResult.recommendedActions.length === 1 && rebalanceResult.recommendedActions[0].includes('balanced')) ? (
@@ -104,8 +106,8 @@ export function PortfolioRebalancePage() {
                                 <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
                                     <CheckCircle2 className="w-6 h-6" />
                                 </div>
-                                <p className="font-medium text-green-800">Your portfolio is perfectly balanced!</p>
-                                <p className="text-sm text-green-600">No actions needed at this time.</p>
+                                <p className="font-medium text-green-800">{t('perfectly_balanced')}</p>
+                                <p className="text-sm text-green-600">{t('no_actions_needed')}</p>
                             </div>
                         ) : (
                             <ul className="space-y-3">
@@ -120,7 +122,7 @@ export function PortfolioRebalancePage() {
 
                         <div className="mt-6 pt-4 border-t border-primary/10">
                             <p className="text-xs text-muted-foreground">
-                                * Recommendations are based on minimizing drift from your <strong>{rebalanceResult.riskProfile}</strong> target allocation.
+                                {t('recommendation_note', { risk: t(rebalanceResult.riskProfile) })}
                             </p>
                         </div>
                     </div>

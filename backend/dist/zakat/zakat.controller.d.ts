@@ -29,7 +29,8 @@ export declare class ZakatController {
             details: {
                 name: string;
                 amount: number;
-                type: import("../assets/entities/asset.entity").AssetType;
+                type: string;
+                originalCurrency: string;
             }[];
         };
     }>;

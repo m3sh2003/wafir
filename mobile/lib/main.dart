@@ -1,31 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Keep for future use
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'features/auth/screens/login_screen.dart';
+import 'features/main/screens/main_screen.dart';
 
-void main() {
-  runApp(const ProviderScope(child: WafirApp()));
+import 'l10n/app_localizations.dart';
+import 'core/api/api_client.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ApiClient.loadBaseUrl();
+  
+  // Check for existing token
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
+  final isLoggedIn = token != null && token.isNotEmpty;
+
+  runApp(ProviderScope(child: WafirApp(isLoggedIn: isLoggedIn)));
 }
 
-class WafirApp extends ConsumerWidget {
-  const WafirApp({super.key});
+class WafirApp extends StatelessWidget {
+  final bool isLoggedIn;
+  
+  const WafirApp({super.key, required this.isLoggedIn});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Wafir',
+      navigatorKey: navigatorKey,
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       debugShowCheckedModeBanner: false,
       
       // Localization
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('ar', 'SA'), // Default
-        Locale('en', 'US'),
-      ],
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       locale: const Locale('ar', 'SA'),
 
       // Theme
@@ -35,9 +47,7 @@ class WafirApp extends ConsumerWidget {
         fontFamily: GoogleFonts.cairo().fontFamily,
       ),
       
-      home: const Scaffold(
-        body: Center(child: Text('مرحباً بك في وافر')),
-      ),
+      home: isLoggedIn ? const MainScreen() : const LoginScreen(),
     );
   }
 }

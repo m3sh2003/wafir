@@ -42,6 +42,9 @@ let BudgetController = class BudgetController {
     createTransaction(req, dto) {
         return this.budgetService.createTransaction(req.user.userId, dto);
     }
+    findAllGlobalTransactions(req) {
+        return this.budgetService.findAllTransactions(req.user.userId);
+    }
     findAllTransactions(req, id) {
         return this.budgetService.findAllTransactionsForEnvelope(req.user.userId, id);
     }
@@ -110,6 +113,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, transaction_dto_1.CreateTransactionDto]),
     __metadata("design:returntype", void 0)
 ], BudgetController.prototype, "createTransaction", null);
+__decorate([
+    (0, common_1.Get)('transactions'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all transactions' }),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], BudgetController.prototype, "findAllGlobalTransactions", null);
 __decorate([
     (0, common_1.Get)('envelopes/:id/transactions'),
     (0, swagger_1.ApiOperation)({ summary: 'Get transactions for an envelope' }),

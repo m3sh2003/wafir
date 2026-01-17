@@ -6,11 +6,17 @@ import { AddTransactionModal } from './AddTransactionModal';
 
 import { TransactionList } from './TransactionList';
 import { CategoryManager } from './CategoryManager';
+import { BudgetSummary } from './BudgetSummary';
+
+
+import { useSettings } from '../../../contexts/SettingsContext';
 
 export function BudgetDashboard() {
     const { data: envelopes, isLoading, error } = useEnvelopes();
     const createEnvelope = useCreateEnvelope();
     const { t } = useTranslation();
+    const { formatPrice } = useSettings();
+
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const [newEnvelope, setNewEnvelope] = useState({ name: '', limitAmount: 0 });
@@ -56,6 +62,9 @@ export function BudgetDashboard() {
                 </div>
             </div>
 
+            {/* Budget Summary Section */}
+            <BudgetSummary />
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {envelopes?.map((env) => (
                     <div key={env.id} className="bg-card text-card-foreground rounded-lg border shadow-sm hover:shadow-md transition-shadow flex flex-col">
@@ -64,12 +73,12 @@ export function BudgetDashboard() {
                                 <div>
                                     <h3 className="font-semibold text-xl flex items-center gap-2">
                                         <Wallet className="w-5 h-5 text-muted-foreground" />
-                                        {env.name}
+                                        {t(env.name)}
                                     </h3>
                                     <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded mt-1 inline-block">{env.period}</span>
                                 </div>
                                 <button
-                                    onClick={() => setTransactionModalState({ isOpen: true, envelopeId: env.id, envelopeName: env.name })}
+                                    onClick={() => setTransactionModalState({ isOpen: true, envelopeId: env.id, envelopeName: t(env.name) })}
                                     className="text-xs bg-secondary hover:bg-secondary/80 text-secondary-foreground px-3 py-1.5 rounded-full transition-colors font-medium"
                                 >
                                     + {t('add_transaction')}
@@ -79,7 +88,7 @@ export function BudgetDashboard() {
                             <div className="space-y-1">
                                 <div className="text-2xl font-bold">
                                     <span className="text-sm font-normal text-muted-foreground mr-1">Limit:</span>
-                                    {Number(env.limitAmount).toLocaleString()} <span className="text-sm font-normal text-muted-foreground">SAR</span>
+                                    {formatPrice(Number(env.limitAmount))}
                                 </div>
                                 <div className="w-full bg-secondary h-2.5 rounded-full overflow-hidden">
                                     <div
@@ -89,7 +98,7 @@ export function BudgetDashboard() {
                                     />
                                 </div>
                                 <div className="flex justify-between text-xs text-muted-foreground">
-                                    <span>{Number(env.spent || 0).toLocaleString()} {t('remaining')}</span>
+                                    <span>{formatPrice(Number(env.spent || 0))} {t('spent')}</span>
                                     <span>{Math.round(((env.spent || 0) / Number(env.limitAmount)) * 100)}%</span>
                                 </div>
                             </div>

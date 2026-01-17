@@ -1,0 +1,69 @@
+Launching lib\main.dart on 23013PC75G in debug mode...
+Running Gradle task 'assembleDebug'...                          
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+A problem occurred configuring project ':connectivity_plus'.
+> Could not resolve all artifacts for configuration 'classpath'.
+   > Could not resolve com.android.tools.build:gradle:8.1.2.
+     Required by:
+         project :connectivity_plus
+      > Could not resolve com.android.tools.build:gradle:8.1.2.
+         > Could not get resource 'https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/8.1.2/gradle-8.1.2.pom'.
+            > Could not GET 'https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/8.1.2/gradle-8.1.2.pom'.
+               > Got socket exception during request. It might be caused by SSL misconfiguration
+                  > Network is unreachable: getsockopt
+      > Could not resolve com.android.tools.build:gradle:8.1.2.
+         > Could not get resource 'https://repo.maven.apache.org/maven2/com/android/tools/build/gradle/8.1.2/gradle-8.1.2.pom'.
+            > Could not GET 'https://repo.maven.apache.org/maven2/com/android/tools/build/gradle/8.1.2/gradle-8.1.2.pom'.
+               > Got socket exception during request. It might be caused by SSL misconfiguration
+                  > Network is unreachable: getsockopt
+> Failed to notify project evaluation listener.
+   > java.lang.NullPointerException (no error message)
+   > java.lang.NullPointerException (no error message)
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 24s
+Running Gradle task 'assembleDebug'...                             25.3s
+[!] Gradle threw an error while downloading artifacts from the network.
+Retrying Gradle Build: #1, wait time: 100ms
+Running Gradle task 'assembleDebug'...                          
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+A problem occurred configuring project ':connectivity_plus'.
+> Could not resolve all artifacts for configuration 'classpath'.
+   > Could not resolve com.android.tools.build:gradle:8.1.2.
+     Required by:
+         project :connectivity_plus
+      > Could not resolve com.android.tools.build:gradle:8.1.2.
+         > Could not get resource 'https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/8.1.2/gradle-8.1.2.pom'.
+            > Could not GET 'https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/8.1.2/gradle-8.1.2.pom'.
+               > Got socket exception during request. It might be caused by SSL misconfiguration
+                  > Network is unreachable: getsockopt
+      > Could not resolve com.android.tools.build:gradle:8.1.2.
+         > Could not get resource 'https://repo.maven.apache.org/maven2/com/android/tools/build/gradle/8.1.2/gradle-8.1.2.pom'.
+            > Could not GET 'https://repo.maven.apache.org/maven2/com/android/tools/build/gradle/8.1.2/gradle-8.1.2.pom'.
+               > Got socket exception during request. It might be caused by SSL misconfiguration
+                  > Network is unreachable: getsockopt
+> Failed to notify project evaluation listener.
+   > java.lang.NullPointerException (no error message)
+   > java.lang.NullPointerException (no error message)
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 20s
+Running Gradle task 'assembleDebug'...                             21.1s
+[!] Gradle threw an error while downloading artifacts from the network.
+Error: Gradle task assembleDebug failed with exit code 1

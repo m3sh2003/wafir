@@ -10,6 +10,7 @@ export declare class BudgetController {
     update(req: any, id: string, dto: UpdateEnvelopeDto): Promise<import("./entities/envelope.entity").Envelope>;
     remove(req: any, id: string): Promise<void>;
     createTransaction(req: any, dto: CreateTransactionDto): Promise<import("./entities/transaction.entity").Transaction>;
+    findAllGlobalTransactions(req: any): Promise<import("./entities/transaction.entity").Transaction[]>;
     findAllTransactions(req: any, id: string): Promise<import("./entities/transaction.entity").Transaction[]>;
     updateTransaction(req: any, id: string, dto: Partial<CreateTransactionDto>): Promise<import("./entities/transaction.entity").Transaction>;
     deleteTransaction(req: any, id: string): Promise<void>;

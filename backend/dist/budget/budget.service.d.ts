@@ -16,6 +16,7 @@ export declare class BudgetService {
     removeEnvelope(id: string, userId: string): Promise<void>;
     createTransaction(userId: string, dto: CreateTransactionDto): Promise<Transaction>;
     findAllTransactionsForEnvelope(userId: string, envelopeId: string): Promise<Transaction[]>;
+    findAllTransactions(userId: string): Promise<Transaction[]>;
     findAllCategories(userId: string): Promise<Category[]>;
     createCategory(userId: string, name: string): Promise<Category>;
     updateTransaction(id: string, userId: string, dto: Partial<CreateTransactionDto>): Promise<Transaction>;

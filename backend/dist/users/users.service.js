@@ -17,10 +17,14 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./entities/user.entity");
+const envelope_entity_1 = require("../budget/entities/envelope.entity");
+const initial_data_1 = require("../config/initial-data");
 let UsersService = class UsersService {
     usersRepository;
-    constructor(usersRepository) {
+    envelopeRepository;
+    constructor(usersRepository, envelopeRepository) {
         this.usersRepository = usersRepository;
+        this.envelopeRepository = envelopeRepository;
     }
     async findOneByEmail(email) {
         return this.usersRepository.findOneBy({ email });
@@ -30,13 +34,67 @@ let UsersService = class UsersService {
     }
     async create(userData) {
         const user = this.usersRepository.create(userData);
-        return this.usersRepository.save(user);
+        const savedUser = await this.usersRepository.save(user);
+        try {
+            await this.initializeUserEnvelopes(savedUser.id);
+        }
+        catch (error) {
+            console.error('Failed to initialize envelopes for user', savedUser.id, error);
+        }
+        return savedUser;
+    }
+    async initializeUserEnvelopes(userId) {
+        try {
+            for (const cat of initial_data_1.arabicCategories) {
+                const envelope = this.envelopeRepository.create({
+                    name: cat.name,
+                    limitAmount: 0,
+                    period: 'Monthly',
+                    userId: userId
+                });
+                await this.envelopeRepository.save(envelope);
+            }
+        }
+        catch (e) {
+            console.error('Error in initializeUserEnvelopes:', e);
+        }
+    }
+    async updateOnboarding(userId, dto) {
+        const user = await this.findOneById(userId);
+        if (!user)
+            throw new common_1.NotFoundException('User not found');
+        user.riskProfile = dto.riskProfile;
+        user.settings = { ...user.settings, monthlyIncome: dto.monthlyIncome };
+        await this.usersRepository.save(user);
+        if (dto.budgetLimits) {
+            for (const [name, limit] of Object.entries(dto.budgetLimits)) {
+                await this.envelopeRepository.update({ userId, name }, { limitAmount: limit });
+            }
+        }
+        return user;
+    }
+    async updateSettings(userId, dto) {
+        console.log('UpdateSettings (Raw SQL) Called for:', userId, 'DTO:', dto);
+        await this.usersRepository.query(`UPDATE users SET settings = COALESCE(settings, '{}'::jsonb) || $1 WHERE id = $2`, [JSON.stringify(dto), userId]);
+        const user = await this.findOneById(userId);
+        if (!user)
+            throw new common_1.NotFoundException('User not found');
+        return user;
+    }
+    async updateCurrency(userId, currency) {
+        await this.usersRepository.query(`UPDATE users SET settings = jsonb_set(COALESCE(settings, '{}'::jsonb), '{currency}', $1::jsonb) WHERE id = $2`, [`"${currency}"`, userId]);
+        const user = await this.findOneById(userId);
+        if (!user)
+            throw new common_1.NotFoundException('User not found');
+        return user;
     }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(1, (0, typeorm_1.InjectRepository)(envelope_entity_1.Envelope)),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

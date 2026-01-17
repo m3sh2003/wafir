@@ -45,6 +45,12 @@ export class BudgetController {
         return this.budgetService.createTransaction(req.user.userId, dto);
     }
 
+    @Get('transactions')
+    @ApiOperation({ summary: 'Get all transactions' })
+    findAllGlobalTransactions(@Request() req: any) {
+        return this.budgetService.findAllTransactions(req.user.userId);
+    }
+
     @Get('envelopes/:id/transactions')
     @ApiOperation({ summary: 'Get transactions for an envelope' })
     findAllTransactions(@Request() req: any, @Param('id') id: string) {

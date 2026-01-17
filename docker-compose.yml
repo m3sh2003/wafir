@@ -1,5 +1,5 @@
-version: '3.8'
 services:
+  # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     container_name: wafir_db
@@ -8,22 +8,89 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: wafir
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./seed.sql:/docker-entrypoint-initdb.d/01-seed.sql:ro
+      - ./seed_investments.sql:/docker-entrypoint-initdb.d/02-seed_investments.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - wafir-network
     restart: unless-stopped
 
+  # NestJS Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: wafir_backend
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: wafir
+      PORT: 3000
+      JWT_SECRET: ${JWT_SECRET:-change-this-in-production}
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - wafir-network
+    restart: unless-stopped
+    # Uncomment for development with live reload
+    # volumes:
+    #   - ./backend/src:/app/src:ro
+    #   - ./backend/dist:/app/dist
+
+  # React/Vite Frontend
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: wafir_web
+    environment:
+      VITE_API_URL: http://localhost:3000
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - wafir-network
+    restart: unless-stopped
+
+  # PgAdmin (Database Management Tool)
   pgadmin:
     image: dpage/pgadmin4
     container_name: wafir_pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@wafir.com
       PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
     ports:
       - "5050:80"
     depends_on:
       - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - wafir-network
     restart: unless-stopped
+
+networks:
+  wafir-network:
+    driver: bridge
 
 volumes:
   postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local

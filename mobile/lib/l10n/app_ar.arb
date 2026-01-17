@@ -5,5 +5,16 @@
   "dashboard": "لوحة المعلومات",
   "budget": "الميزانية",
   "invest": "استثمار",
-  "transactions": "المعاملات"
+  "transactions": "المعاملات",
+  "email": "البريد الإلكتروني",
+  "password": "كلمة المرور",
+  "login": "تسجيل الدخول",
+  "logout": "تسجيل خروج",
+  "totalNetWorth": "إجمالي الأصول",
+  "noHoldings": "لا توجد أصول. أضف أصولاً لترى إجمالي ثروتك.",
+  "offlineReady": "تم تسجيل الدخول بنجاح! (جاهز للعمل دون اتصال)",
+  "welcomeToWafirMobile": "مرحباً في تطبيق وافر",
+  "loginFailed": "فشل تسجيل الدخول",
+  "connectionError": "خطأ في الاتصال. هل الخادم يعمل؟",
+  "continueOffline": "أكمل بدون انترنت (محلي فقط)"
 }

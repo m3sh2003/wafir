@@ -28,30 +28,40 @@ export class BudgetService {
     }
 
     async findAllEnvelopes(userId: string): Promise<Envelope[]> {
-        const envelopes = await this.envelopeRepository
-            .createQueryBuilder('envelope')
-            .leftJoin('envelope.transactions', 'transaction') // Assumes relationship exists
-            .select([
-                'envelope.id',
-                'envelope.name',
-                'envelope.limitAmount',
-                'envelope.period',
-                'envelope.userId'
-            ])
-            .addSelect('COALESCE(SUM(transaction.amount), 0)', 'spent')
-            .where('envelope.userId = :userId', { userId })
-            .groupBy('envelope.id')
-            .getRawMany();
+        console.log('Fetching envelopes for userId:', userId);
+        try {
+            const envelopes = await this.envelopeRepository
+                .createQueryBuilder('envelope')
+                .leftJoin('envelope.transactions', 'transaction') // Assumes relationship exists
+                .select('envelope.id', 'id')
+                .addSelect('envelope.name', 'name')
+                .addSelect('envelope.limitAmount', 'limitAmount')
+                .addSelect('envelope.period', 'period')
+                .addSelect('envelope.userId', 'userId')
+                .addSelect('COALESCE(SUM(transaction.amount), 0)', 'spent')
+                .where('envelope.userId = :userId', { userId })
+                .groupBy('envelope.id')
+                .addGroupBy('envelope.name')
+                .addGroupBy('envelope.limitAmount')
+                .addGroupBy('envelope.period')
+                .addGroupBy('envelope.userId')
+                .getRawMany();
 
-        // Map raw results back to expected shape if needed, mostly for camelCase
-        return envelopes.map(e => ({
-            id: e.envelope_id,
-            name: e.envelope_name,
-            limitAmount: Number(e.envelope_limitAmount),
-            period: e.envelope_period,
-            userId: e.envelope_userId,
-            spent: Number(e.spent)
-        })) as any;
+            console.log('Raw envelopes data:', envelopes);
+
+            return envelopes.map(e => ({
+                id: e.id,
+                name: e.name,
+                limitAmount: Number(e.limitAmount),
+                period: e.period,
+                userId: e.userId,
+                spent: Number(e.spent || 0)
+            })) as any;
+        } catch (error) {
+            console.error('Error fetching envelopes:', error);
+            console.error('Error stack:', error.stack);
+            throw error;
+        }
     }
 
     async findOneEnvelope(id: string, userId: string): Promise<Envelope> {
@@ -72,13 +82,19 @@ export class BudgetService {
     }
 
     async createTransaction(userId: string, dto: CreateTransactionDto): Promise<Transaction> {
-        const envelope = await this.findOneEnvelope(dto.envelopeId, userId);
+        let envelope;
+        if (dto.envelopeId) {
+            envelope = await this.findOneEnvelope(dto.envelopeId, userId);
+        } else if (dto.type !== 'INCOME') {
+            throw new NotFoundException('Envelope ID is required for expenses');
+        }
+
         const transaction = this.transactionRepository.create({
             ...dto,
             userId,
-            envelope: await envelope,
+            envelope: envelope,
             // default to Expense if not specified
-            type: 'EXPENSE',
+            type: dto.type || 'EXPENSE',
             currency: 'SAR',
             date: dto.date ? new Date(dto.date) : new Date(),
         });
@@ -91,6 +107,14 @@ export class BudgetService {
         return this.transactionRepository.find({
             where: { envelopeId, userId },
             order: { date: 'DESC' }
+        });
+    }
+
+    async findAllTransactions(userId: string): Promise<Transaction[]> {
+        return this.transactionRepository.find({
+            where: { userId },
+            order: { date: 'DESC' },
+            relations: ['envelope']
         });
     }
 

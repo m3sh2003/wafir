@@ -1,0 +1,88 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --font-sans: 'IBM Plex Sans Arabic', sans-serif;
+    --background: 0 0% 100%;
+    --foreground: 158 42% 18%;
+    /* Emerald 900 */
+
+    --card: 0 0% 100%;
+    --card-foreground: 158 42% 18%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 158 42% 18%;
+
+    --primary: 158 64% 52%;
+    /* Emerald 500 */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 166 74% 97%;
+    /* Emerald 50 */
+    --secondary-foreground: 158 42% 18%;
+
+    --muted: 166 74% 97%;
+    --muted-foreground: 161 17% 41%;
+    /* Emerald 600/Gray mix */
+
+    --accent: 166 74% 97%;
+    --accent-foreground: 158 42% 18%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 158 29% 90%;
+    /* Emerald 100/200 */
+    --input: 158 29% 90%;
+    --ring: 158 64% 52%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 164 45% 8%;
+    /* Very dark Emerald */
+    --foreground: 155 35% 94%;
+    /* Emerald 50 */
+
+    --card: 164 45% 8%;
+    --card-foreground: 155 35% 94%;
+
+    --popover: 164 45% 8%;
+    --popover-foreground: 155 35% 94%;
+
+    --primary: 158 64% 52%;
+    /* Emerald 500 */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 163 42% 18%;
+    /* Dark Emerald */
+    --secondary-foreground: 155 35% 94%;
+
+    --muted: 163 42% 18%;
+    --muted-foreground: 157 20% 65%;
+
+    --accent: 163 42% 18%;
+    --accent-foreground: 155 35% 94%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 163 42% 18%;
+    --input: 163 42% 18%;
+    --ring: 162 48% 41%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

@@ -1,25 +1,42 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    // يمكنك إزالة كود Compose إذا لم تعد بحاجة إليه لتقليل حجم التطبيق
 }
 
 android {
     namespace = "com.example.wafir"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.wafir"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    // ... بقية الإعدادات
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = "11"
+    }
 }
 
-// --- إضافة مهمة الأتمتة هنا ---
+// --- مهمة أتمتة بناء الويب ونسخ الملفات ---
 tasks.register<Exec>("npmBuild") {
     group = "build"
     workingDir = file("../wafir-app")
@@ -37,17 +54,17 @@ tasks.register<Copy>("syncWebAssets") {
     into("src/main/assets/public")
 }
 
-// اجعل الأندرويد يقوم بتحديث ملفات الويب قبل كل بناء
 tasks.named("preBuild") {
     dependsOn("syncWebAssets")
 }
-// ----------------------------
 
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.capacitor.core)
 
-    // استخدام إصدار 7.0.0 ليتوافق مع نظام أندرويد المستهدف
-    implementation("com.capacitorjs:core:7.0.0")
-    implementation("com.capacitorjs:android:7.0.0")
+    // إصلاح أخطاء الـ Test لتصدير الـ APK
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

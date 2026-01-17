@@ -1,0 +1,24 @@
+Database connected for Arabic seeding...
+User found. Updating locale...
+Seeding Arabic Envelopes...
+Created envelope: السكن
+Created envelope: المأكل والمشرب
+Created envelope: النقل والمواصلات
+Created envelope: الفواتير والخدمات
+Created envelope: الترفيه
+Created envelope: التسوق
+Created envelope: المطاعم والمقاهي
+Created envelope: العناية الشخصية
+Created envelope: صندوق الطوارئ
+Created envelope: الاستثمار
+Created envelope: الادخار
+Created envelope: الصدقة
+Created envelope: زكاة المال
+Created envelope: الهدايا
+Created envelope: السفر
+Seeding Assets...
+TypeORMError: Empty criteria(s) are not allowed for the delete method.
+    at EntityManager.delete (F:\Wafir\backend\node_modules\src\entity-manager\EntityManager.ts:849:17)
+    at Repository.delete (F:\Wafir\backend\node_modules\src\repository\Repository.ts:420:35)
+    at bootstrap (F:\Wafir\backend\src\seeds\seed-arabic.ts:91:33)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)

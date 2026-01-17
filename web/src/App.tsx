@@ -10,8 +10,9 @@ import { AddTransactionPage } from './features/budget/components/AddTransactionP
 import { AssetsDashboard } from './features/assets/components/AssetsDashboard';
 import { PortfolioRebalancePage } from './features/investments/components/PortfolioRebalancePage';
 import { SettingsPage } from './features/settings/components/SettingsPage';
-import { SettingsProvider } from './contexts/SettingsContext';
+import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { getToken } from './features/auth/api/auth';
+import { OnboardingPage } from './features/users/pages/OnboardingPage';
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ import { useEffect, useState } from 'react';
 import { authApi, setToken, setUser } from './features/auth/api/auth';
 
 function AutoLoginWrapper({ children }: { children: ReactNode }) {
+  const { hydrateSettings } = useSettings();
   const [isChecking, setIsChecking] = useState(!getToken());
   const [error, setError] = useState<string | null>(null);
 
@@ -28,6 +30,7 @@ function AutoLoginWrapper({ children }: { children: ReactNode }) {
     const attemptAutoLogin = async () => {
       const token = getToken();
       if (token) {
+        await hydrateSettings(); // Hydrate settings on valid session
         setIsChecking(false);
         return;
       }
@@ -37,6 +40,7 @@ function AutoLoginWrapper({ children }: { children: ReactNode }) {
         const res = await authApi.login('ahmed@example.com', 'password123');
         setToken(res.access_token);
         setUser(res.user);
+        await hydrateSettings(); // Hydrate settings after new login
         setIsChecking(false);
       } catch (err: any) {
         console.error('Auto-login failed', err);
@@ -81,6 +85,11 @@ function App() {
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/onboarding" element={
+                <AutoLoginWrapper>
+                  <OnboardingPage />
+                </AutoLoginWrapper>
+              } />
               <Route path="*" element={
                 <AutoLoginWrapper>
                   <DashboardLayout>

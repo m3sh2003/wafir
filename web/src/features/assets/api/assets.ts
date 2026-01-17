@@ -1,7 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getToken } from '../../auth/api/auth';
-
-const API_URL = '/api';
+import { apiClient } from '../../../lib/api_client';
 
 export interface Account {
     id: number;
@@ -36,39 +34,23 @@ export interface CreateHoldingDto {
 
 // Fetchers
 async function fetchAccounts(): Promise<Account[]> {
-    const token = getToken();
-    const res = await fetch(`${API_URL}/assets/accounts`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    if (!res.ok) throw new Error('Failed to fetch accounts');
+    const res = await apiClient('/assets/accounts');
     return res.json();
 }
 
 async function createAccount(dto: CreateAccountDto): Promise<Account> {
-    const token = getToken();
-    const res = await fetch(`${API_URL}/assets/accounts`, {
+    const res = await apiClient('/assets/accounts', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
         body: JSON.stringify(dto),
     });
-    if (!res.ok) throw new Error('Failed to create account');
     return res.json();
 }
 
 async function createHolding(accountId: number, dto: CreateHoldingDto): Promise<Holding> {
-    const token = getToken();
-    const res = await fetch(`${API_URL}/assets/accounts/${accountId}/holdings`, {
+    const res = await apiClient(`/assets/accounts/${accountId}/holdings`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
         body: JSON.stringify(dto),
     });
-    if (!res.ok) throw new Error('Failed to add holding');
     return res.json();
 }
 
@@ -87,6 +69,7 @@ export const useCreateAccount = () => {
         mutationFn: createAccount,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['accounts'] });
+            queryClient.invalidateQueries({ queryKey: ['portfolio'] });
         },
     });
 };
@@ -96,27 +79,22 @@ export const useAddHolding = () => {
     return useMutation({
         mutationFn: (vars: { accountId: number; dto: CreateHoldingDto }) => createHolding(vars.accountId, vars.dto),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['accounts'] }); // Detailed accounts include holdings often, or we invalidate specific keys
+            queryClient.invalidateQueries({ queryKey: ['accounts'] });
+            queryClient.invalidateQueries({ queryKey: ['portfolio'] });
         },
     });
 };
 
 async function deleteAccount(id: number): Promise<void> {
-    const token = getToken();
-    const res = await fetch(`${API_URL}/assets/accounts/${id}`, {
+    await apiClient(`/assets/accounts/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
     });
-    if (!res.ok) throw new Error('Failed to delete account');
 }
 
 async function deleteHolding(id: number): Promise<void> {
-    const token = getToken();
-    const res = await fetch(`${API_URL}/assets/holdings/${id}`, {
+    await apiClient(`/assets/holdings/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
     });
-    if (!res.ok) throw new Error('Failed to delete holding');
 }
 
 export const useDeleteAccount = () => {
@@ -125,6 +103,7 @@ export const useDeleteAccount = () => {
         mutationFn: deleteAccount,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['accounts'] });
+            queryClient.invalidateQueries({ queryKey: ['portfolio'] });
         },
     });
 };
@@ -135,6 +114,7 @@ export const useDeleteHolding = () => {
         mutationFn: deleteHolding,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['accounts'] });
+            queryClient.invalidateQueries({ queryKey: ['portfolio'] });
         },
     });
 };

@@ -1,0 +1,20 @@
+{
+  "@@locale": "en",
+  "appTitle": "Wafir",
+  "welcomeMessage": "Welcome to Wafir",
+  "dashboard": "Dashboard",
+  "budget": "Budget",
+  "invest": "Invest",
+  "transactions": "Transactions",
+  "email": "Email",
+  "password": "Password",
+  "login": "Login",
+  "logout": "Log Out",
+  "totalNetWorth": "Total Net Worth",
+  "noHoldings": "No holdings found. Add assets to see your Net Worth.",
+  "offlineReady": "You are successfully logged in! (Offline Ready)",
+  "welcomeToWafirMobile": "Welcome to Wafir Mobile",
+  "loginFailed": "Login Failed",
+  "connectionError": "Connection Error. Is the backend running?",
+  "continueOffline": "Continue Offline (No Sync)"
+}

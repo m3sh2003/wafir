@@ -17,6 +17,7 @@ class CreateTransactionDto {
     amount;
     envelopeId;
     date;
+    type;
 }
 exports.CreateTransactionDto = CreateTransactionDto;
 __decorate([
@@ -32,8 +33,8 @@ __decorate([
     __metadata("design:type", Number)
 ], CreateTransactionDto.prototype, "amount", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], CreateTransactionDto.prototype, "envelopeId", void 0);
@@ -43,4 +44,10 @@ __decorate([
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", String)
 ], CreateTransactionDto.prototype, "date", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false, enum: ['INCOME', 'EXPENSE', 'TRANSFER'] }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateTransactionDto.prototype, "type", void 0);
 //# sourceMappingURL=transaction.dto.js.map

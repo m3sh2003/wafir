@@ -1,0 +1,762 @@
+﻿[32m[Nest] 18880  - [39m01/10/2026, 11:50:56 AM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 18880  - [39m01/10/2026, 11:50:56 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +70ms[39m
+[32m[Nest] 18880  - [39m01/10/2026, 11:50:56 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 18880  - [39m01/10/2026, 11:50:56 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUsersModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 18880  - [39m01/10/2026, 11:50:56 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mInvestModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 18880  - [39m01/10/2026, 11:50:56 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mSchedulerModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 18880  - [39m01/10/2026, 11:50:56 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 18880  - [39m01/10/2026, 11:50:56 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 18880  - [39m01/10/2026, 11:50:56 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+node : [31m[Nest] 
+18880  - 
+[39m01/10/2026, 
+11:50:56 AM [31m  
+ERROR[39m [38;5;3m
+[TypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(1)...[39m
+At line:1 char:1
++ node dist/main 
+2>&1 | Out-File 
+-Encoding utf8 backe
+nd_error_utf8.log
++ 
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo  
+            : NotS  
+  pecified: ([31   
+ m[Nest] 188...i    
+ng (1)...[39m:    
+String) [], Rem    
+oteException
+    + FullyQualifie 
+   dErrorId : Nati  
+  veCommandError
+ 
+TypeORMError: 
+Entity metadata for 
+Envelope#user was 
+not found. Check if 
+you specified a 
+correct entity 
+object and if it's 
+connected in the 
+connection options.
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:733:23
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.computeInve
+rseProperties (F:\Wa
+fir\backend\node_mod
+ules\typeorm\metadat
+a-builder\EntityMeta
+dataBuilder.js:726:3
+4)
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:86:58
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.build (F:\W
+afir\backend\node_mo
+dules\typeorm\metada
+ta-builder\EntityMet
+adataBuilder.js:86:2
+5)
+    at ConnectionMet
+adataBuilder.buildEn
+tityMetadatas (F:\Wa
+fir\backend\node_mod
+ules\typeorm\connect
+ion\ConnectionMetada
+taBuilder.js:66:150)
+    at process.proce
+ssTicksAndRejections
+ (node:internal/proc
+ess/task_queues:103:
+5)
+    at async DataSou
+rce.buildMetadatas (
+F:\Wafir\backend\nod
+e_modules\typeorm\da
+ta-source\DataSource
+.js:483:33)
+    at async DataSou
+rce.initialize (F:\W
+afir\backend\node_mo
+dules\typeorm\data-s
+ource\DataSource.js:
+145:13)
+[31m[Nest] 18880  
+- [39m01/10/2026, 
+11:50:59 AM [31m  
+ERROR[39m [38;5;3m
+[TypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(2)...[39m
+TypeORMError: 
+Entity metadata for 
+Envelope#user was 
+not found. Check if 
+you specified a 
+correct entity 
+object and if it's 
+connected in the 
+connection options.
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:733:23
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.computeInve
+rseProperties (F:\Wa
+fir\backend\node_mod
+ules\typeorm\metadat
+a-builder\EntityMeta
+dataBuilder.js:726:3
+4)
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:86:58
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.build (F:\W
+afir\backend\node_mo
+dules\typeorm\metada
+ta-builder\EntityMet
+adataBuilder.js:86:2
+5)
+    at ConnectionMet
+adataBuilder.buildEn
+tityMetadatas (F:\Wa
+fir\backend\node_mod
+ules\typeorm\connect
+ion\ConnectionMetada
+taBuilder.js:66:150)
+    at process.proce
+ssTicksAndRejections
+ (node:internal/proc
+ess/task_queues:103:
+5)
+    at async DataSou
+rce.buildMetadatas (
+F:\Wafir\backend\nod
+e_modules\typeorm\da
+ta-source\DataSource
+.js:483:33)
+    at async DataSou
+rce.initialize (F:\W
+afir\backend\node_mo
+dules\typeorm\data-s
+ource\DataSource.js:
+145:13)
+[31m[Nest] 18880  
+- [39m01/10/2026, 
+11:51:02 AM [31m  
+ERROR[39m [38;5;3m
+[TypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(3)...[39m
+TypeORMError: 
+Entity metadata for 
+Envelope#user was 
+not found. Check if 
+you specified a 
+correct entity 
+object and if it's 
+connected in the 
+connection options.
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:733:23
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.computeInve
+rseProperties (F:\Wa
+fir\backend\node_mod
+ules\typeorm\metadat
+a-builder\EntityMeta
+dataBuilder.js:726:3
+4)
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:86:58
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.build (F:\W
+afir\backend\node_mo
+dules\typeorm\metada
+ta-builder\EntityMet
+adataBuilder.js:86:2
+5)
+    at ConnectionMet
+adataBuilder.buildEn
+tityMetadatas (F:\Wa
+fir\backend\node_mod
+ules\typeorm\connect
+ion\ConnectionMetada
+taBuilder.js:66:150)
+    at process.proce
+ssTicksAndRejections
+ (node:internal/proc
+ess/task_queues:103:
+5)
+    at async DataSou
+rce.buildMetadatas (
+F:\Wafir\backend\nod
+e_modules\typeorm\da
+ta-source\DataSource
+.js:483:33)
+    at async DataSou
+rce.initialize (F:\W
+afir\backend\node_mo
+dules\typeorm\data-s
+ource\DataSource.js:
+145:13)
+[31m[Nest] 18880  
+- [39m01/10/2026, 
+11:51:05 AM [31m  
+ERROR[39m [38;5;3m
+[TypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(4)...[39m
+TypeORMError: 
+Entity metadata for 
+Envelope#user was 
+not found. Check if 
+you specified a 
+correct entity 
+object and if it's 
+connected in the 
+connection options.
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:733:23
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.computeInve
+rseProperties (F:\Wa
+fir\backend\node_mod
+ules\typeorm\metadat
+a-builder\EntityMeta
+dataBuilder.js:726:3
+4)
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:86:58
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.build (F:\W
+afir\backend\node_mo
+dules\typeorm\metada
+ta-builder\EntityMet
+adataBuilder.js:86:2
+5)
+    at ConnectionMet
+adataBuilder.buildEn
+tityMetadatas (F:\Wa
+fir\backend\node_mod
+ules\typeorm\connect
+ion\ConnectionMetada
+taBuilder.js:66:150)
+    at process.proce
+ssTicksAndRejections
+ (node:internal/proc
+ess/task_queues:103:
+5)
+    at async DataSou
+rce.buildMetadatas (
+F:\Wafir\backend\nod
+e_modules\typeorm\da
+ta-source\DataSource
+.js:483:33)
+    at async DataSou
+rce.initialize (F:\W
+afir\backend\node_mo
+dules\typeorm\data-s
+ource\DataSource.js:
+145:13)
+[31m[Nest] 18880  
+- [39m01/10/2026, 
+11:51:08 AM [31m  
+ERROR[39m [38;5;3m
+[TypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(5)...[39m
+TypeORMError: 
+Entity metadata for 
+Envelope#user was 
+not found. Check if 
+you specified a 
+correct entity 
+object and if it's 
+connected in the 
+connection options.
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:733:23
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.computeInve
+rseProperties (F:\Wa
+fir\backend\node_mod
+ules\typeorm\metadat
+a-builder\EntityMeta
+dataBuilder.js:726:3
+4)
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:86:58
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.build (F:\W
+afir\backend\node_mo
+dules\typeorm\metada
+ta-builder\EntityMet
+adataBuilder.js:86:2
+5)
+    at ConnectionMet
+adataBuilder.buildEn
+tityMetadatas (F:\Wa
+fir\backend\node_mod
+ules\typeorm\connect
+ion\ConnectionMetada
+taBuilder.js:66:150)
+    at process.proce
+ssTicksAndRejections
+ (node:internal/proc
+ess/task_queues:103:
+5)
+    at async DataSou
+rce.buildMetadatas (
+F:\Wafir\backend\nod
+e_modules\typeorm\da
+ta-source\DataSource
+.js:483:33)
+    at async DataSou
+rce.initialize (F:\W
+afir\backend\node_mo
+dules\typeorm\data-s
+ource\DataSource.js:
+145:13)
+[31m[Nest] 18880  
+- [39m01/10/2026, 
+11:51:12 AM [31m  
+ERROR[39m [38;5;3m
+[TypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(6)...[39m
+TypeORMError: 
+Entity metadata for 
+Envelope#user was 
+not found. Check if 
+you specified a 
+correct entity 
+object and if it's 
+connected in the 
+connection options.
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:733:23
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.computeInve
+rseProperties (F:\Wa
+fir\backend\node_mod
+ules\typeorm\metadat
+a-builder\EntityMeta
+dataBuilder.js:726:3
+4)
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:86:58
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.build (F:\W
+afir\backend\node_mo
+dules\typeorm\metada
+ta-builder\EntityMet
+adataBuilder.js:86:2
+5)
+    at ConnectionMet
+adataBuilder.buildEn
+tityMetadatas (F:\Wa
+fir\backend\node_mod
+ules\typeorm\connect
+ion\ConnectionMetada
+taBuilder.js:66:150)
+    at process.proce
+ssTicksAndRejections
+ (node:internal/proc
+ess/task_queues:103:
+5)
+    at async DataSou
+rce.buildMetadatas (
+F:\Wafir\backend\nod
+e_modules\typeorm\da
+ta-source\DataSource
+.js:483:33)
+    at async DataSou
+rce.initialize (F:\W
+afir\backend\node_mo
+dules\typeorm\data-s
+ource\DataSource.js:
+145:13)
+[31m[Nest] 18880  
+- [39m01/10/2026, 
+11:51:15 AM [31m  
+ERROR[39m [38;5;3m
+[TypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(7)...[39m
+TypeORMError: 
+Entity metadata for 
+Envelope#user was 
+not found. Check if 
+you specified a 
+correct entity 
+object and if it's 
+connected in the 
+connection options.
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:733:23
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.computeInve
+rseProperties (F:\Wa
+fir\backend\node_mod
+ules\typeorm\metadat
+a-builder\EntityMeta
+dataBuilder.js:726:3
+4)
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:86:58
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.build (F:\W
+afir\backend\node_mo
+dules\typeorm\metada
+ta-builder\EntityMet
+adataBuilder.js:86:2
+5)
+    at ConnectionMet
+adataBuilder.buildEn
+tityMetadatas (F:\Wa
+fir\backend\node_mod
+ules\typeorm\connect
+ion\ConnectionMetada
+taBuilder.js:66:150)
+    at process.proce
+ssTicksAndRejections
+ (node:internal/proc
+ess/task_queues:103:
+5)
+    at async DataSou
+rce.buildMetadatas (
+F:\Wafir\backend\nod
+e_modules\typeorm\da
+ta-source\DataSource
+.js:483:33)
+    at async DataSou
+rce.initialize (F:\W
+afir\backend\node_mo
+dules\typeorm\data-s
+ource\DataSource.js:
+145:13)
+[31m[Nest] 18880  
+- [39m01/10/2026, 
+11:51:18 AM [31m  
+ERROR[39m [38;5;3m
+[TypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(8)...[39m
+TypeORMError: 
+Entity metadata for 
+Envelope#user was 
+not found. Check if 
+you specified a 
+correct entity 
+object and if it's 
+connected in the 
+connection options.
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:733:23
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.computeInve
+rseProperties (F:\Wa
+fir\backend\node_mod
+ules\typeorm\metadat
+a-builder\EntityMeta
+dataBuilder.js:726:3
+4)
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:86:58
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.build (F:\W
+afir\backend\node_mo
+dules\typeorm\metada
+ta-builder\EntityMet
+adataBuilder.js:86:2
+5)
+    at ConnectionMet
+adataBuilder.buildEn
+tityMetadatas (F:\Wa
+fir\backend\node_mod
+ules\typeorm\connect
+ion\ConnectionMetada
+taBuilder.js:66:150)
+    at process.proce
+ssTicksAndRejections
+ (node:internal/proc
+ess/task_queues:103:
+5)
+    at async DataSou
+rce.buildMetadatas (
+F:\Wafir\backend\nod
+e_modules\typeorm\da
+ta-source\DataSource
+.js:483:33)
+    at async DataSou
+rce.initialize (F:\W
+afir\backend\node_mo
+dules\typeorm\data-s
+ource\DataSource.js:
+145:13)
+[31m[Nest] 18880  
+- [39m01/10/2026, 
+11:51:21 AM [31m  
+ERROR[39m [38;5;3m
+[TypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(9)...[39m
+TypeORMError: 
+Entity metadata for 
+Envelope#user was 
+not found. Check if 
+you specified a 
+correct entity 
+object and if it's 
+connected in the 
+connection options.
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:733:23
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.computeInve
+rseProperties (F:\Wa
+fir\backend\node_mod
+ules\typeorm\metadat
+a-builder\EntityMeta
+dataBuilder.js:726:3
+4)
+    at F:\Wafir\back
+end\node_modules\typ
+eorm\metadata-builde
+r\EntityMetadataBuil
+der.js:86:58
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.build (F:\W
+afir\backend\node_mo
+dules\typeorm\metada
+ta-builder\EntityMet
+adataBuilder.js:86:2
+5)
+    at ConnectionMet
+adataBuilder.buildEn
+tityMetadatas (F:\Wa
+fir\backend\node_mod
+ules\typeorm\connect
+ion\ConnectionMetada
+taBuilder.js:66:150)
+    at process.proce
+ssTicksAndRejections
+ (node:internal/proc
+ess/task_queues:103:
+5)
+    at async DataSou
+rce.buildMetadatas (
+F:\Wafir\backend\nod
+e_modules\typeorm\da
+ta-source\DataSource
+.js:483:33)
+    at async DataSou
+rce.initialize (F:\W
+afir\backend\node_mo
+dules\typeorm\data-s
+ource\DataSource.js:
+145:13)
+[31m[Nest] 18880  
+- [39m01/10/2026, 
+11:51:21 AM [31m  
+ERROR[39m [38;5;3m
+[ExceptionHandler] 
+[39mTypeORMError: 
+Entity metadata for 
+Envelope#user was 
+not found. Check if 
+you specified a 
+correct entity 
+object and if it's 
+connected in the 
+connection options.
+    at [90mF:\Wafir
+\backend\[39mnode_m
+odules\[4mtypeorm[
+24m\metadata-builder
+\EntityMetadataBuild
+er.js:733:23
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.computeInve
+rseProperties [90m(
+F:\Wafir\backend\[3
+9mnode_modules\[4mt
+ypeorm[24m\metadata
+-builder\EntityMetad
+ataBuilder.js:726:34
+[90m)[39m
+    at [90mF:\Wafir
+\backend\[39mnode_m
+odules\[4mtypeorm[
+24m\metadata-builder
+\EntityMetadataBuild
+er.js:86:58
+    at 
+Array.forEach 
+(<anonymous>)
+    at EntityMetadat
+aBuilder.build [90m
+(F:\Wafir\backend\[
+39mnode_modules\[4m
+typeorm[24m\metadat
+a-builder\EntityMeta
+dataBuilder.js:86:25
+[90m)[39m
+    at ConnectionMet
+adataBuilder.buildEn
+tityMetadatas [90m(
+F:\Wafir\backend\[3
+9mnode_modules\[4mt
+ypeorm[24m\connecti
+on\ConnectionMetadat
+aBuilder.js:66:150[
+90m)[39m
+[90m    at process.
+processTicksAndRejec
+tions (node:internal
+/process/task_queues
+:103:5)[39m
+    at async DataSou
+rce.buildMetadatas 
+[90m(F:\Wafir\backen
+d\[39mnode_modules\
+[4mtypeorm[24m\dat
+a-source\DataSource.
+js:483:33[90m)[39m
+    at async DataSou
+rce.initialize [90m
+(F:\Wafir\backend\[
+39mnode_modules\[4m
+typeorm[24m\data-so
+urce\DataSource.js:1
+45:13[90m)[39m

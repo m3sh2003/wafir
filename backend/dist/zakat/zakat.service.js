@@ -37,11 +37,20 @@ let ZakatService = class ZakatService {
     async calculateFromSystem(userId) {
         const holdings = await this.assetsService.findAllHoldings(userId);
         const accounts = await this.assetsService.findAllAccounts(userId);
+        const toSAR = (amount, currency) => {
+            if (!currency || currency === 'SAR')
+                return amount;
+            if (currency === 'USD')
+                return amount * 3.75;
+            if (currency === 'EGP')
+                return amount * 0.08;
+            return amount;
+        };
         let cashTotalSAR = 0;
-        const zakatableAccountTypes = ['bank', 'cash', 'certificate'];
+        const zakatableAccountTypes = ['bank', 'cash', 'certificate', 'broker'];
         for (const account of accounts) {
             if (zakatableAccountTypes.includes(account.type.toLowerCase())) {
-                cashTotalSAR += Number(account.balance);
+                cashTotalSAR += toSAR(Number(account.balance), account.currencyCode);
             }
         }
         let investmentsTotalSAR = 0;
@@ -49,13 +58,28 @@ let ZakatService = class ZakatService {
         for (const holding of holdings) {
             if (holding.isPrimaryHome)
                 continue;
+            const currency = holding.account?.currencyCode || 'SAR';
+            if (!holding.asset) {
+                const value = Number(holding.units);
+                const valueSAR = toSAR(value, currency);
+                investmentsTotalSAR += valueSAR;
+                details.push({
+                    name: holding.instrumentCode || 'Manual Asset',
+                    amount: valueSAR,
+                    type: 'Manual',
+                    originalCurrency: currency
+                });
+                continue;
+            }
             if (holding.asset && holding.asset.isZakatable) {
-                const value = Number(holding.units) * Number(holding.asset.currentPrice);
-                investmentsTotalSAR += value;
+                const rawValue = Number(holding.units) * Number(holding.asset.currentPrice);
+                const valueSAR = toSAR(rawValue, currency);
+                investmentsTotalSAR += valueSAR;
                 details.push({
                     name: holding.asset.name,
-                    amount: value,
-                    type: holding.asset.type
+                    amount: valueSAR,
+                    type: holding.asset.type,
+                    originalCurrency: currency
                 });
             }
         }

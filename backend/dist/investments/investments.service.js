@@ -54,23 +54,54 @@ let InvestmentsService = class InvestmentsService {
             where: { userId },
             relations: ['asset'],
         });
+        const accounts = await this.assetsService.findAllAccounts(userId);
         const holdings = await this.assetsService.findAllHoldings(userId);
+        const toSAR = (amount, currency) => {
+            if (!currency || currency === 'SAR')
+                return amount;
+            if (currency === 'USD')
+                return amount * 3.75;
+            if (currency === 'EGP')
+                return amount * 0.08;
+            return amount;
+        };
         const manualPortfolio = holdings
             .filter(h => h.assetId || h.instrumentCode)
-            .map(h => ({
-            id: `manual-${h.id}`,
-            amount: Number(h.units) * (Number(h.asset?.currentPrice) || 1),
-            asset: h.asset || {
-                id: 'manual',
-                name: h.instrumentCode || 'Unnamed Asset',
-                type: 'Manual Asset',
-                riskLevel: 'Unknown',
-                currentPrice: 1
+            .map(h => {
+            const rawValue = Number(h.units) * (Number(h.asset?.currentPrice) || 1);
+            const currency = h.account?.currencyCode || 'SAR';
+            const valueInSAR = toSAR(rawValue, currency);
+            return {
+                id: `manual-${h.id}`,
+                amount: valueInSAR,
+                asset: h.asset || {
+                    id: 'manual',
+                    name: h.instrumentCode || 'Unnamed Asset',
+                    type: 'Manual Asset',
+                    riskLevel: 'Unknown',
+                    currentPrice: 1
+                },
+                isManual: true,
+                purchasedAt: new Date()
+            };
+        });
+        const cashPortfolio = accounts
+            .filter(acc => Number(acc.balance) > 0)
+            .map(acc => ({
+            id: `account-${acc.id}`,
+            amount: toSAR(Number(acc.balance), acc.currencyCode),
+            asset: {
+                id: `account-asset-${acc.id}`,
+                name: acc.name,
+                type: 'Cash Equivalent',
+                riskLevel: 'Low',
+                currentPrice: 1,
+                description: `Balance in ${acc.name} (${acc.currencyCode})`
             },
             isManual: true,
             purchasedAt: new Date()
         }));
-        return [...directPortfolio, ...manualPortfolio];
+        return [...directPortfolio, ...manualPortfolio, ...cashPortfolio];
     }
     async invest(userId, assetId, amount) {
         if (amount <= 0)

@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const swagger_1 = require("@nestjs/swagger");
 const users_service_1 = require("./users.service");
+const update_onboarding_dto_1 = require("./dto/update-onboarding.dto");
 let UsersController = class UsersController {
     usersService;
     constructor(usersService) {
@@ -29,6 +30,15 @@ let UsersController = class UsersController {
         const { passwordHash, ...result } = user;
         return result;
     }
+    async updateOnboarding(req, dto) {
+        return this.usersService.updateOnboarding(req.user.userId, dto);
+    }
+    async updateSettings(req, dto) {
+        return this.usersService.updateSettings(req.user.userId, dto);
+    }
+    async updateCurrency(req, body) {
+        return this.usersService.updateCurrency(req.user.userId, body.currency);
+    }
 };
 exports.UsersController = UsersController;
 __decorate([
@@ -40,6 +50,35 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getProfile", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Patch)('onboarding'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update user profile and budget limits' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, update_onboarding_dto_1.UpdateOnboardingDto]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updateOnboarding", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Patch)('settings'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update user settings (currency, theme, etc.)' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updateSettings", null);
+__decorate([
+    (0, common_1.Patch)('currency'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update user currency specifically' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updateCurrency", null);
 exports.UsersController = UsersController = __decorate([
     (0, swagger_1.ApiTags)('Users'),
     (0, swagger_1.ApiBearerAuth)(),

@@ -12,13 +12,14 @@ import { ZakatModule } from './zakat/zakat.module';
 import { AssetsModule } from './assets/assets.module';
 import { RulesModule } from './rules/rules.module';
 
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST || '127.0.0.1',
-      port: 5432,
+      port: parseInt(process.env.DB_PORT || '5432', 10),
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'wafir',
@@ -33,7 +34,8 @@ import { RulesModule } from './rules/rules.module';
 
     ZakatModule,
     AssetsModule,
-    RulesModule
+    RulesModule,
+
   ],
   controllers: [AppController],
   providers: [AppService],

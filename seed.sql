@@ -1,5 +1,5 @@
-INSERT INTO users (id, email, name, settings, "createdAt", "updatedAt") 
-VALUES ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'ahmed@example.com', 'Ahmed', '{"currency": "SAR", "locale": "ar-SA"}', NOW(), NOW()) 
+INSERT INTO users (id, email, name, settings, "passwordHash", "createdAt", "updatedAt") 
+VALUES ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'ahmed@example.com', 'Ahmed', '{"currency": "SAR", "locale": "ar-SA"}', '$2b$10$5ny8bA4F1Wdvqcp32SKmguBCNQdyrgM07vzSPz6RwgOsTyCGG.NZG', NOW(), NOW()) 
 ON CONFLICT (email) DO NOTHING;
 
 INSERT INTO envelopes (id, name, "limitAmount", period, "userId") 
