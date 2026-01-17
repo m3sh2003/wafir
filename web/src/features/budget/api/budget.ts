@@ -24,6 +24,7 @@ export interface Transaction {
     date: string;
     type: string;
     envelopeId: string;
+    currency?: string;
 }
 
 export interface CreateTransactionDto {
