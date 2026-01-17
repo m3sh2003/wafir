@@ -15,7 +15,7 @@ export class HealthController {
             return {
                 status: 'ok',
                 db_response: result,
-                ssl: this.dataSource.options.ssl,
+                ssl: (this.dataSource.options as any).ssl,
                 // Do not expose full password, but maybe host/user
                 config: {
                     host: (this.dataSource.options as any).host,
@@ -24,7 +24,7 @@ export class HealthController {
                     ssl_option: (this.dataSource.options as any).ssl
                 }
             };
-        } catch (error) {
+        } catch (error: any) {
             return {
                 status: 'error',
                 message: error.message,
