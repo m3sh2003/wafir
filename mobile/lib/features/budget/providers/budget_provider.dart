@@ -32,12 +32,8 @@ class BudgetNotifier extends StateNotifier<AsyncValue<List<Map<String, dynamic>>
       await _repository.syncData();
       await _loadData();
     } catch (e, stack) {
-       // If sync fails, we still try to reload local data to show something
+       print('Budget sync failed, falling back to local data: $e');
        await _loadData();
-       // But we should probably expose the error as a snackbar event or similar?
-       // For now, state error is fine, but it might hide local data if we override.
-       // Better: Toast/Snackbar for sync error, but keep local data.
-       // Reverting to load local if sync fails:
     }
   }
 }

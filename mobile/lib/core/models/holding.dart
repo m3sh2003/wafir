@@ -21,7 +21,7 @@ class Holding {
       instrumentCode: json['instrumentCode'] ?? json['instrument_code'],
       assetId: json['assetId'] ?? json['asset_id'],
       units: (json['units'] is String ? double.tryParse(json['units']) : (json['units'] as num?)?.toDouble()) ?? 0.0,
-      isPrimaryHome: json['isPrimaryHome'] == 1 || json['isPrimaryHome'] == true || json['is_primary_home'] == 1,
+      isPrimaryHome: json['isPrimaryHome'] == 1 || json['isPrimaryHome'] == true || json['is_primary_home'] == 1 || json['is_primary_home'] == true,
       accountId: json['accountId'] ?? json['account_id'],
     );
   }

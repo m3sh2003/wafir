@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../providers/budget_provider.dart';
+import '../../transactions/screens/add_transaction_screen.dart';
 
 class BudgetScreen extends ConsumerStatefulWidget {
   const BudgetScreen({super.key});
@@ -39,8 +40,10 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-           // TODO: Add Transaction
-           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Add Transaction Todo')));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddTransactionScreen()),
+          );
         },
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.add, color: Colors.white),

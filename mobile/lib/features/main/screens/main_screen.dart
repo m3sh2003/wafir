@@ -3,7 +3,9 @@ import '../../../core/theme/app_colors.dart';
 import '../../dashboard/screens/home_screen.dart';
 import '../../budget/screens/budget_screen.dart';
 import '../../settings/screens/settings_screen.dart';
-import '../screens/placeholders.dart';
+import '../../settings/screens/settings_screen.dart';
+import '../../dashboard/screens/dashboard_screen.dart';
+import '../../zakat/screens/zakat_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MainScreen extends StatefulWidget {

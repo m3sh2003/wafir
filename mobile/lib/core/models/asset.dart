@@ -31,13 +31,14 @@ class Asset {
       name: json['name'],
       symbol: json['symbol'],
       type: json['type'],
-      riskLevel: json['riskLevel'] ?? 'Medium',
-      currentPrice: (json['currentPrice'] is String ? double.tryParse(json['currentPrice']) : (json['currentPrice'] as num?)?.toDouble()) ?? 0.0,
-      expectedReturn: json['expectedReturn'] == null ? null : (json['expectedReturn'] is String ? double.tryParse(json['expectedReturn']) : (json['expectedReturn'] as num?)?.toDouble()),
-      minInvestment: json['minInvestment'] == null ? null : (json['minInvestment'] is String ? double.tryParse(json['minInvestment']) : (json['minInvestment'] as num?)?.toDouble()),
+      riskLevel: json['riskLevel'] ?? json['risk_level'] ?? 'Medium',
+      currentPrice: (json['currentPrice'] is String ? double.tryParse(json['currentPrice']) : (json['currentPrice'] as num?)?.toDouble()) ?? 
+                    (json['current_price'] is String ? double.tryParse(json['current_price']) : (json['current_price'] as num?)?.toDouble()) ?? 0.0,
+      expectedReturn: json['expectedReturn'] == null ? (json['expected_return'] is String ? double.tryParse(json['expected_return']) : (json['expected_return'] as num?)?.toDouble()) : (json['expectedReturn'] is String ? double.tryParse(json['expectedReturn']) : (json['expectedReturn'] as num?)?.toDouble()),
+      minInvestment: json['minInvestment'] == null ? (json['min_investment'] is String ? double.tryParse(json['min_investment']) : (json['min_investment'] as num?)?.toDouble()) : (json['minInvestment'] is String ? double.tryParse(json['minInvestment']) : (json['minInvestment'] as num?)?.toDouble()),
       description: json['description'],
-      isZakatable: json['isZakatable'] == 1 || json['isZakatable'] == true,
-      isShariaCompliant: json['isShariaCompliant'] == 1 || json['isShariaCompliant'] == true,
+      isZakatable: json['isZakatable'] == 1 || json['isZakatable'] == true || json['is_zakatable'] == 1 || json['is_zakatable'] == true,
+      isShariaCompliant: json['isShariaCompliant'] == 1 || json['isShariaCompliant'] == true || json['is_sharia_compliant'] == 1 || json['is_sharia_compliant'] == true,
     );
   }
 

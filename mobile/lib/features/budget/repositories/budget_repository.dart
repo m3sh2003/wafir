@@ -29,10 +29,9 @@ class BudgetRepository {
   }
 
   Future<void> _syncEnvelopes() async {
-    // Assuming backend endpoint /budgets/envelopes based on standard REST
-    // I need to verify ApiClient logic. I'll use request method or add getEnvelopes
-    // For now using general request.
-    final response = await _apiClient.request('/budgets/envelopes', method: 'GET');
+    // Assuming backend endpoint /budget/envelopes based on standard REST
+    // Verified: BudgetController is @Controller('budget')
+    final response = await _apiClient.request('/budget/envelopes', method: 'GET');
     final List<dynamic> data = response.data;
     
     final db = await _databaseService.database;
@@ -44,10 +43,10 @@ class BudgetRepository {
         {
           'id': json['id'],
           'name': json['name'],
-          'limit_amount': json['limitAmount'], // Check casing from backend
-          'spent_amount': json['spent'] ?? 0.0, // Backend might calculate this or we sum transactions
+          'limit_amount': json['limitAmount'] ?? json['limit_amount'] ?? 0.0,
+          'spent_amount': json['spent'] ?? json['spent_amount'] ?? 0.0,
           'period': json['period'],
-          'userId': json['userId'],
+          'userId': json['userId'] ?? json['user_id'],
         },
         conflictAlgorithm: ConflictAlgorithm.replace,
       );

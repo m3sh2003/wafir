@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../database/database_service.dart';
 
 class ApiClient {
   static String? _customBaseUrl;
@@ -20,8 +21,8 @@ class ApiClient {
   // Dynamic Base URL based on platform
   static String get baseUrl {
     if (kIsWeb) return 'http://localhost:3000/api';
-    // Use stored URL if available, otherwise default to Computer's IP
-    return _customBaseUrl ?? 'http://192.168.88.41:3000/api';
+    // Use stored URL if available, otherwise default to Production Cloud Link
+    return _customBaseUrl ?? 'https://wafir.onrender.com/api';
   }
 
   Future<bool> get isOfflineMode async {
@@ -67,9 +68,12 @@ class ApiClient {
     return prefs.getString('token');
   }
 
+
+
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
+    await DatabaseService().clearData();
   }
 
   Future<Response> getHoldings() async {

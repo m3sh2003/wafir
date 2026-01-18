@@ -27,15 +27,14 @@ class DashboardRepository {
     // If online, we sync then load.
     
     if (await _networkInfo.isConnected && !(await _apiClient.isOfflineMode)) {
-      try {
-      await _syncService.syncPendingActions(); // Sync offline writes first
-        await _syncAccounts();
-        await _syncAssets();
-        await _syncHoldings();
-      } catch (e) {
-        print('Sync failed: $e');
-        rethrow;
-      }
+      try { await _syncService.syncPendingActions(); } catch (e) { print('Sync Pending actions failed: $e'); }
+      
+      try { await _syncAccounts(); } catch (e) { print('Sync Accounts failed: $e'); }
+      
+      try { await _syncAssets(); } catch (e) { print('Sync Assets failed: $e'); }
+      
+      // Sync Holdings might fail if Assets failed (FK), but we try anyway
+      try { await _syncHoldings(); } catch (e) { print('Sync Holdings failed: $e'); }
     }
     
     // Always load local data to update the UI
@@ -55,10 +54,10 @@ class DashboardRepository {
           'id': json['id'],
           'name': json['name'],
           'type': json['type'],
-          'currency': json['currencyCode'],
+          'currency': json['currency_code'] ?? json['currencyCode'], // Handle both just in case
           'balance': json['balance'],
-          'user_id': json['userId'],
-          'is_primary': json['isPrimary'] == true ? 1 : 0,
+          'user_id': json['user_id'] ?? json['userId'],
+          'is_primary': (json['is_primary'] ?? json['isPrimary']) == true ? 1 : 0,
         },
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
@@ -148,7 +147,7 @@ class DashboardRepository {
   Future<List<Map<String, dynamic>>> getEnrichedHoldings() async {
     final db = await _databaseService.database;
     return await db.rawQuery('''
-      SELECT h.*, a.name as asset_name, a.symbol as asset_symbol, a.currentPrice as asset_currentPrice, a.type as asset_type
+      SELECT h.*, a.name as asset_name, a.symbol as asset_symbol, a.currentPrice as asset_currentPrice, a.type as asset_type, a.isZakatable as asset_isZakatable, a.isShariaCompliant as asset_isShariaCompliant
       FROM holdings h
       LEFT JOIN assets a ON h.asset_id = a.id
     ''');

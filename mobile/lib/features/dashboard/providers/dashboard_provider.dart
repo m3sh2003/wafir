@@ -45,9 +45,10 @@ class DashboardController extends AsyncNotifier<Map<String, dynamic>> {
     try {
       final repo = ref.read(dashboardRepositoryProvider);
       await repo.syncData();
-      state = await AsyncValue.guard(() => _fetchLocalData());
-    } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
+    } catch (e) {
+      print('Sync failed, falling back to local data: $e');
     }
+    // Always load local data, even if sync failed
+    state = await AsyncValue.guard(() => _fetchLocalData());
   }
 }

@@ -26,10 +26,14 @@ class AccountCard extends StatelessWidget {
     // Let's sum the holdings for display.
     
     double totalValue = 0;
-    for (var h in holdings) {
-      final units = h['units'] as double? ?? 0.0;
-      final price = h['asset_currentPrice'] as double? ?? 1.0; // Default 1 if missing
-      totalValue += units * price; // Simplified valuation
+    if (holdings.isNotEmpty) {
+      for (var h in holdings) {
+        final units = h['units'] as double? ?? 0.0;
+        final price = h['asset_currentPrice'] as double? ?? 1.0; 
+        totalValue += units * price; 
+      }
+    } else {
+      totalValue = account['balance'] as double? ?? 0.0;
     }
     
     final currencyFormatter = NumberFormat.currency(symbol: '$currency ', decimalDigits: 2);
