@@ -24,7 +24,7 @@ let AuthController = class AuthController {
     async login(req) {
         const user = await this.authService.validateUser(req.email, req.password);
         if (!user) {
-            throw new Error('Invalid credentials');
+            throw new common_1.UnauthorizedException('Invalid credentials');
         }
         return this.authService.login(user);
     }

@@ -99,4 +99,31 @@ export class UsersService {
         if (!user) throw new NotFoundException('User not found');
         return user;
     }
+    async updateProfile(userId: string, dto: any): Promise<User> {
+        const user = await this.findOneById(userId);
+        if (!user) throw new NotFoundException('User not found');
+
+        // Update basic fields if present
+        if (dto.name !== undefined) user.name = dto.name;
+        if (dto.email !== undefined) user.email = dto.email;
+
+        // Update profile fields stored in JSONB if necessary or separate columns
+        // Assuming age/phone are stored in `settings` or new columns?
+        // Let's check User entity. If they are not columns, we put them in settings.profile.
+        // But traditionally name/email are columns.
+
+        // Let's force update settings.profile for extra fields
+        const currentSettings = user.settings || {};
+        user.settings = {
+            ...currentSettings,
+            profile: {
+                ...(currentSettings['profile'] || {}),
+                ...(dto.phone ? { phone: dto.phone } : {}),
+                ...(dto.age ? { age: dto.age } : {}),
+            }
+        };
+
+        await this.usersRepository.save(user);
+        return user;
+    }
 }

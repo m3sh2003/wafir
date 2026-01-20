@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:flutter/foundation.dart';
 
 class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
@@ -12,6 +13,9 @@ class DatabaseService {
   DatabaseService._internal();
 
   Future<Database> get database async {
+    if (kIsWeb) {
+      throw UnsupportedError('SQLite is not supported on Web/Chrome Simulator');
+    }
     if (_database != null) return _database!;
     _database = await _initDB();
     return _database!;
@@ -119,6 +123,7 @@ class DatabaseService {
   }
 
   Future<void> clearData() async {
+    if (kIsWeb) return; // Do nothing on web
     final db = await database;
     await db.delete('transactions');
     await db.delete('holdings');

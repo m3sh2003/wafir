@@ -70,3 +70,17 @@ export async function updateCurrency(currency: string): Promise<any> {
     if (!res.ok) throw new Error('Failed to update currency');
     return res.json();
 }
+
+export async function updateUserProfile(profile: any): Promise<any> {
+    const token = getToken();
+    const res = await fetch(`${API_URL}/users/profile`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(profile),
+    });
+    if (!res.ok) throw new Error('Failed to update profile');
+    return res.json();
+}

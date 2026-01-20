@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import i18n from '../lib/i18n';
-import { updateSettings, updateCurrency, getUserProfile } from '../features/users/api/users';
+import { updateSettings, updateCurrency, getUserProfile, updateUserProfile } from '../features/users/api/users';
 import { getToken } from '../features/auth/api/auth';
 
 interface SettingsState {
@@ -116,12 +116,12 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const setProfile = (p: SettingsState['profile']) => {
         setProfileState(p);
         localStorage.setItem('wafir_profile', JSON.stringify(p));
-        // We probably don't have a direct 'update whole profile' via settings endpoint, 
-        // usually profile update is separate. But ignoring for now or mapping if needed.
-        // The disconnected code didn't call saveToBackend for profile?
-        // Let's check original disconnected code... it did NOT have setProfile in the bottom chunk.
-        // So we leave this as local only or implement if needed. 
-        // We will leave as is (local storage only) to match previous logic for profile.
+
+        // Sync to backend
+        const token = getToken();
+        if (token) {
+            updateUserProfile(p).catch(err => console.error('Failed to sync profile', err));
+        }
     }
 
     const setSecurity = (s: SettingsState['security']) => {
@@ -167,6 +167,22 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
                     if (s.theme === 'dark') document.documentElement.classList.add('dark');
                     else document.documentElement.classList.remove('dark');
                 }
+            }
+
+            // Sync Profile (Name, Email, etc.)
+            // getUserProfile returns the User entity which has name, email, etc.
+            if (user) {
+                const newProfile = {
+                    name: user.name || '',
+                    email: user.email || '',
+                    // Check if other fields are in user or settings.profile
+                    phone: user.settings?.profile?.phone || '',
+                    age: user.settings?.profile?.age || 0,
+                    monthlyIncome: user.settings?.monthlyIncome || 0,
+                    riskTolerance: user.riskProfile || 'none',
+                };
+                setProfileState(newProfile as SettingsState['profile']);
+                localStorage.setItem('wafir_profile', JSON.stringify(newProfile));
             }
         } catch (e) { console.error('Failed to hydrate settings', e); }
     }

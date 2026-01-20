@@ -88,6 +88,26 @@ let UsersService = class UsersService {
             throw new common_1.NotFoundException('User not found');
         return user;
     }
+    async updateProfile(userId, dto) {
+        const user = await this.findOneById(userId);
+        if (!user)
+            throw new common_1.NotFoundException('User not found');
+        if (dto.name !== undefined)
+            user.name = dto.name;
+        if (dto.email !== undefined)
+            user.email = dto.email;
+        const currentSettings = user.settings || {};
+        user.settings = {
+            ...currentSettings,
+            profile: {
+                ...(currentSettings['profile'] || {}),
+                ...(dto.phone ? { phone: dto.phone } : {}),
+                ...(dto.age ? { age: dto.age } : {}),
+            }
+        };
+        await this.usersRepository.save(user);
+        return user;
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([

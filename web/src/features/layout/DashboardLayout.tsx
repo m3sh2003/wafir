@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useSettings } from '../../contexts/SettingsContext';
 
 interface DashboardLayoutProps {
     children: ReactNode;
@@ -10,6 +11,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
     const { t } = useTranslation();
+    const { profile } = useSettings();
     const location = useLocation();
     const linkClass = (path: string) =>
         `px-4 py-2 rounded-lg transition-all duration-200 font-medium ${location.pathname === path
@@ -39,7 +41,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
                     <div className="flex items-center gap-4">
                         <div className="text-sm font-medium hidden sm:block">
-                            أهلا، أحمد 👋
+                            {/* Dynamic Greeting */}
+                            {t('welcome') || 'Welcome'}, {profile.name || 'User'} 👋
                         </div>
                         <button
                             onClick={() => { localStorage.clear(); window.location.href = '/login'; }}

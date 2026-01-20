@@ -17,4 +17,5 @@ export declare class UsersController {
     updateCurrency(req: any, body: {
         currency: string;
     }): Promise<import("./entities/user.entity").User>;
+    updateProfile(req: any, dto: any): Promise<import("./entities/user.entity").User>;
 }

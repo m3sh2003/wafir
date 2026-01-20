@@ -38,4 +38,10 @@ export class UsersController {
     async updateCurrency(@Request() req: any, @Body() body: { currency: string }) {
         return this.usersService.updateCurrency(req.user.userId, body.currency);
     }
+    @UseGuards(JwtAuthGuard)
+    @Patch('profile')
+    @ApiOperation({ summary: 'Update user personal profile (name, email, age, phone)' })
+    async updateProfile(@Request() req: any, @Body() dto: any) {
+        return this.usersService.updateProfile(req.user.userId, dto);
+    }
 }

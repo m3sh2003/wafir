@@ -8,6 +8,9 @@ import '../providers/dashboard_provider.dart';
 import '../../../core/database/database_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../widgets/account_card.dart';
+import '../../investments/screens/rebalance_screen.dart';
+import '../../investments/screens/risk_assessment_screen.dart';
+import '../../zakat/screens/zakat_calculator_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -124,6 +127,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 
                 const SizedBox(height: 24),
                 
+                // Tools Section
+                const SizedBox(height: 24),
+                Text(
+                  'Quick Tools',
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 100,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      _buildToolCard(
+                        context, 
+                        'Rebalance', 
+                        Icons.scale, 
+                        Colors.blue,
+                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RebalanceScreen())),
+                      ),
+                      _buildToolCard(
+                        context, 
+                        'Zakat Calc', 
+                        Icons.calculate, 
+                        Colors.green,
+                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ZakatCalculatorScreen())),
+                      ),
+                      _buildToolCard(
+                        context, 
+                        'Assessment', 
+                        Icons.assessment, 
+                        Colors.orange,
+                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RiskAssessmentScreen())),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+                
                 // Accounts List
                 ...accounts.map((acc) {
                   final accId = acc['id'] as int;
@@ -154,6 +196,48 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         },
         loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
         error: (err, stack) => Center(child: Text('Error: $err')),
+      ),
+    );
+  }
+
+  Widget _buildToolCard(BuildContext context, String title, IconData icon, Color color, VoidCallback onTap) {
+    return Container(
+      width: 100,
+      margin: const EdgeInsets.only(right: 12),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        elevation: 2,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: color, size: 24),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

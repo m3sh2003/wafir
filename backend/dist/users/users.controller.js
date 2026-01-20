@@ -39,6 +39,9 @@ let UsersController = class UsersController {
     async updateCurrency(req, body) {
         return this.usersService.updateCurrency(req.user.userId, body.currency);
     }
+    async updateProfile(req, dto) {
+        return this.usersService.updateProfile(req.user.userId, dto);
+    }
 };
 exports.UsersController = UsersController;
 __decorate([
@@ -79,6 +82,16 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateCurrency", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Patch)('profile'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update user personal profile (name, email, age, phone)' }),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updateProfile", null);
 exports.UsersController = UsersController = __decorate([
     (0, swagger_1.ApiTags)('Users'),
     (0, swagger_1.ApiBearerAuth)(),

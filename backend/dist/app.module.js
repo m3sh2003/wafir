@@ -36,6 +36,12 @@ exports.AppModule = AppModule = __decorate([
                 database: process.env.DB_NAME || 'wafir',
                 autoLoadEntities: true,
                 synchronize: true,
+                ssl: process.env.NODE_ENV === 'production',
+                extra: process.env.NODE_ENV === 'production' ? {
+                    ssl: {
+                        rejectUnauthorized: false,
+                    },
+                } : {},
             }),
             auth_module_1.AuthModule,
             users_module_1.UsersModule,

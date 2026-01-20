@@ -13,4 +13,5 @@ export declare class UsersService {
     updateOnboarding(userId: string, dto: UpdateOnboardingDto): Promise<User>;
     updateSettings(userId: string, dto: any): Promise<User>;
     updateCurrency(userId: string, currency: string): Promise<User>;
+    updateProfile(userId: string, dto: any): Promise<User>;
 }

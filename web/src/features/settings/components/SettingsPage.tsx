@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useSettings } from '../../../contexts/SettingsContext';
 import { Moon, Sun, Globe, DollarSign, Save, User, Lock, Hash, Fingerprint, FileText, Database, Download, Upload, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
-import { exportData, importData } from '../api/data';
+import { exportUserFinancialData, importData } from '../api/data';
 
 export function SettingsPage() {
     const { t } = useTranslation();
@@ -242,11 +242,11 @@ export function SettingsPage() {
                         <p className="text-sm text-muted-foreground mb-2">{t('export_desc')}</p>
                         <div className="flex flex-wrap gap-2">
                             {/* PDF Placeholder - Future Feature */}
-                            <button onClick={() => alert("PDF Export coming soon!")} className="px-3 py-2 border rounded-md text-sm hover:bg-muted flex items-center gap-2 opacity-50 cursor-not-allowed">
+                            <button onClick={() => exportUserFinancialData('pdf')} className="px-3 py-2 border rounded-md text-sm hover:bg-muted flex items-center gap-2">
                                 <Download className="w-4 h-4" />
                                 {t('export_pdf')}
                             </button>
-                            <button onClick={() => exportData('csv')} className="px-3 py-2 border rounded-md text-sm hover:bg-muted flex items-center gap-2">
+                            <button onClick={() => exportUserFinancialData('csv')} className="px-3 py-2 border rounded-md text-sm hover:bg-muted flex items-center gap-2">
                                 <Download className="w-4 h-4" />
                                 {t('export_excel')} / CSV
                             </button>
@@ -263,7 +263,7 @@ export function SettingsPage() {
                         </h4>
                         <p className="text-sm text-muted-foreground mb-2">{t('backup_desc')}</p>
                         <div className="flex flex-wrap gap-2">
-                            <button onClick={() => exportData('json')} className="px-3 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:bg-primary/90 flex items-center gap-2">
+                            <button onClick={() => exportUserFinancialData('json')} className="px-3 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:bg-primary/90 flex items-center gap-2">
                                 <Download className="w-4 h-4" />
                                 {t('export_db')}
                             </button>

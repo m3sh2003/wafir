@@ -21,6 +21,11 @@ class ApiClient {
   // Dynamic Base URL based on platform
   static String get baseUrl {
     if (kIsWeb) return 'http://localhost:3000/api';
+    // For Windows/Linux/Mac local development, use localhost
+    if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+       return _customBaseUrl ?? 'http://localhost:3000/api';
+    }
+    // For Android Emulator, use 10.0.2.2? Or keep default cloud for release.
     // Use stored URL if available, otherwise default to Production Cloud Link
     return _customBaseUrl ?? 'https://wafir.onrender.com/api';
   }
@@ -106,5 +111,65 @@ class ApiClient {
         headers: token != null ? {'Authorization': 'Bearer $token'} : {},
       ),
     );
+  }
+
+  // Investments
+  Future<Response> rebalancePortfolio() async {
+    final token = await getToken();
+    return _dio.post('/investments/portfolio/rebalance', options: Options(
+      headers: {'Authorization': 'Bearer $token'},
+    ));
+  }
+
+  Future<Response> getRiskProfile() async {
+    final token = await getToken();
+    return _dio.get('/investments/risk-profile', options: Options(
+      headers: {'Authorization': 'Bearer $token'},
+    ));
+  }
+
+  Future<Response> setRiskProfile(int score) async {
+    final token = await getToken();
+    return _dio.post('/investments/risk-profile', 
+      data: {'score': score},
+      options: Options(
+        headers: {'Authorization': 'Bearer $token'},
+      )
+    );
+  }
+
+  // Zakat
+  Future<Response> calculateZakatManual(Map<String, dynamic> data) async {
+    final token = await getToken();
+    return _dio.post('/zakat/calculate', 
+      data: data,
+      options: Options(
+        headers: {'Authorization': 'Bearer $token'},
+      )
+    );
+  }
+
+  Future<Response> calculateZakatSystem() async {
+    final token = await getToken();
+    return _dio.get('/zakat/calculate/system', options: Options(
+      headers: {'Authorization': 'Bearer $token'},
+    ));
+  }
+
+  Future<Response> updateProfile(Map<String, dynamic> data) async {
+    final token = await getToken();
+    return _dio.patch('/users/profile', 
+      data: data,
+      options: Options(
+        headers: {'Authorization': 'Bearer $token'},
+      )
+    );
+  }
+
+  Future<Response> getProfile() async {
+    final token = await getToken();
+    return _dio.get('/users/profile', options: Options(
+      headers: {'Authorization': 'Bearer $token'},
+    ));
   }
 }
