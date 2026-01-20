@@ -165,7 +165,6 @@ const resources = {
             "education": "Education",
             "entertainment": "Entertainment",
             "savings": "Savings",
-            "cash": "Cash",
             "Conservative": "Conservative",
             "Balanced": "Balanced",
             "Growth": "Growth",
@@ -184,7 +183,22 @@ const resources = {
             "optimized_based_on": "Optimization based on your {{risk}} risk profile.",
             "perfectly_balanced": "Your portfolio is perfectly balanced!",
             "no_actions_needed": "No actions needed at this time.",
-            "recommendation_note": "* Recommendations are based on minimizing drift from your {{risk}} target allocation."
+            "recommendation_note": "* Recommendations are based on minimizing drift from your {{risk}} target allocation.",
+            "equity": "Equity",
+            "sukuk": "Sukuk",
+            "gold": "Gold",
+            "cash": "Cash",
+            "buy": "Buy",
+            "sell": "Sell",
+            "detailed_analysis": "Detailed Analysis",
+            "asset_class": "Asset Class",
+            "current_value": "Current Value",
+            "target_value": "Target Value",
+            "diff": "Diff",
+            "action": "Action",
+            "to_align_with_risk_profile": "To align with your risk profile",
+            "portfolio_is_balanced": "Portfolio is Balanced",
+            "no_actions_needed_desc": "Great job! Your portfolio matches your target allocation."
         }
     },
     ar: {
@@ -348,7 +362,6 @@ const resources = {
             "education": "التعليم",
             "entertainment": "الترفيه",
             "savings": "الادخار",
-            "cash": "نقد",
             "Conservative": "محافظ",
             "Balanced": "متوازن",
             "Growth": "نمو",
@@ -367,7 +380,22 @@ const resources = {
             "optimized_based_on": "التحسين بناءً على ملف المخاطر الخاص بك: {{risk}}.",
             "perfectly_balanced": "محفظتك متوازنة تماماً!",
             "no_actions_needed": "لا توجد إجراءات مطلوبة في الوقت الحالي.",
-            "recommendation_note": "* التوصيات مبنية على تقليل الانحراف عن التوزيع المستهدف لملف {{risk}}."
+            "recommendation_note": "* التوصيات مبنية على تقليل الانحراف عن التوزيع المستهدف لملف {{risk}}.",
+            "equity": "أسهم",
+            "sukuk": "صكوك",
+            "gold": "ذهب",
+            "cash": "نقد",
+            "buy": "شراء",
+            "sell": "بيع",
+            "detailed_analysis": "تحليل تفصيلي",
+            "asset_class": "فئة الأصول",
+            "current_value": "القيمة الحالية",
+            "target_value": "القيمة المستهدفة",
+            "diff": "الفرق",
+            "action": "الإجراء",
+            "to_align_with_risk_profile": "لتتوافق مع ملف المخاطر الخاص بك",
+            "portfolio_is_balanced": "المحفظة متوازنة",
+            "no_actions_needed_desc": "عمل رائع! محفظتك تتطابق مع التوزيع المستهدف."
         }
     }
 };

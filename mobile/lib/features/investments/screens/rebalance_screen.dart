@@ -156,17 +156,33 @@ class _RebalanceScreenState extends ConsumerState<RebalanceScreen> {
 
   Widget _buildChartSection() {
     final current = _result?['currentAllocation'] as Map<String, dynamic>? ?? {};
-    final equity = (current['Equity'] ?? 0.0) as double;
-    final sukuk = (current['Sukuk'] ?? 0.0) as double;
-    final cash = (current['Cash'] ?? 0.0) as double;
-    final realEstate = (current['RealEstate'] ?? 0.0) as double;
+    
+    // Define colors for known assets, fallback for others
+    final colors = {
+      'Equity': Colors.blue,
+      'Sukuk': Colors.green,
+      'Real Estate': Colors.orange,
+      'Gold': Colors.amber,
+      'Cash': Colors.grey,
+    };
 
-    // Filter out zero values for cleaner chart
     final sections = <PieChartSectionData>[];
-    if (equity > 0) sections.add(_buildPieSection(equity, Colors.blue, 'Equity'));
-    if (sukuk > 0) sections.add(_buildPieSection(sukuk, Colors.green, 'Sukuk'));
-    if (realEstate > 0) sections.add(_buildPieSection(realEstate, Colors.orange, 'Real Estate'));
-    if (cash > 0) sections.add(_buildPieSection(cash, Colors.grey, 'Cash'));
+    
+    current.forEach((key, value) {
+      final val = (value as num).toDouble();
+      if (val > 0) {
+        sections.add(_buildPieSection(val, colors[key] ?? Colors.purple, key));
+      }
+    });
+
+    if (sections.isEmpty) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text('No allocation data available.', textAlign: TextAlign.center),
+        ),
+      );
+    }
 
     return Card(
       elevation: 2,
@@ -232,12 +248,14 @@ class _RebalanceScreenState extends ConsumerState<RebalanceScreen> {
   }
 
   Widget _buildLegendItem(Color color, String label) {
+    // Remove percentage from legend label if present (it's in the chart slices)
+    final cleanLabel = label.replaceAll(RegExp(r'[0-9%]+'), '').trim();
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 12)),
+        Text(cleanLabel, style: const TextStyle(fontSize: 12)),
       ],
     );
   }
@@ -248,14 +266,15 @@ class _RebalanceScreenState extends ConsumerState<RebalanceScreen> {
     final totalValue = (_result?['totalValue'] ?? 0.0) as double;
     final currencyFormatter = NumberFormat.currency(symbol: 'SAR ', decimalDigits: 0);
 
-    final assets = ['Equity', 'Sukuk', 'RealEstate', 'Cash'];
+    // Merge keys from both current and target to ensure we show everything
+    final allKeys = {...current.keys, ...target.keys}.toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Detailed Analysis', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         const SizedBox(height: 8),
-        ...assets.map((assetKey) {
+        ...allKeys.map((assetKey) {
           final curPct = (current[assetKey] ?? 0.0) as double;
           final tgtPct = (target[assetKey] ?? 0.0) as double;
 

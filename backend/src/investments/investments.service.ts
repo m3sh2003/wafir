@@ -130,7 +130,7 @@ export class InvestmentsService {
         const portfolio = await this.getPortfolio(userId);
         const userTargets = await this.assetsService.getPortfolioTargets(userId);
 
-        let targets: Record<string, number> = { 'Equity': 0.5, 'Sukuk': 0.5 };
+        let targets: Record<string, number> = { 'Equity': 0.5, 'Sukuk': 0.4, 'Cash': 0.1 };
 
         // Override with DB targets if available
         if (userTargets.length > 0) {
@@ -138,38 +138,69 @@ export class InvestmentsService {
             userTargets.forEach(t => targets[t.assetClass] = Number(t.targetPct));
         } else {
             // Fallback to Risk Profile
-            if (riskProfile === 'Conservative') targets = { 'Equity': 0.2, 'Sukuk': 0.8 };
-            if (riskProfile === 'Aggressive') targets = { 'Equity': 0.8, 'Sukuk': 0.2 };
+            if (riskProfile === 'Conservative') targets = { 'Equity': 0.2, 'Sukuk': 0.6, 'Real Estate': 0.1, 'Cash': 0.1 };
+            if (riskProfile === 'Aggressive') targets = { 'Equity': 0.7, 'Sukuk': 0.1, 'Real Estate': 0.15, 'Cash': 0.05 };
+            if (riskProfile === 'Growth') targets = { 'Equity': 0.6, 'Sukuk': 0.2, 'Real Estate': 0.15, 'Cash': 0.05 };
         }
 
         // Calculate Current Allocation
         const totalValue = portfolio.reduce((sum, item) => sum + Number(item.amount), 0);
-        if (totalValue === 0) return { message: 'Portfolio is empty, nothing to rebalance' };
+        if (totalValue === 0) return {
+            riskProfile,
+            totalValue: 0,
+            currentAllocation: {},
+            targetAllocation: targets,
+            recommendedActions: ['Portfolio is empty']
+        };
 
-        const currentAllocation = { 'Equity': 0, 'Sukuk': 0 };
+        const currentAllocation: Record<string, number> = {};
+        // Initialize all target keys to 0
+        Object.keys(targets).forEach(k => currentAllocation[k] = 0);
+
         portfolio.forEach(item => {
-            // Updated logic for Asset Types
-            const type = item.asset.type as string;
-            if (type === 'ETF' || type === 'Stock' || type === 'Equity') currentAllocation['Equity'] += Number(item.amount);
-            else currentAllocation['Sukuk'] += Number(item.amount);
+            const type = item.asset.type;
+            let category = 'Other';
+
+            if (['ETF', 'Stock', 'Equity'].includes(type)) category = 'Equity';
+            else if (['Sukuk', 'Bond'].includes(type)) category = 'Sukuk';
+            else if (['Real Estate', 'REIT'].includes(type) || item.asset.name.includes('Real Estate')) category = 'Real Estate';
+            else if (['Gold', 'Commodity'].includes(type)) category = 'Gold';
+            else if (['Cash Equivalent', 'Cash'].includes(type)) category = 'Cash';
+
+            if (!currentAllocation[category]) currentAllocation[category] = 0;
+            currentAllocation[category] += Number(item.amount);
         });
 
-        // Determine Deviations (Simplified)
-        const actions = [];
-        const equityDiff = (currentAllocation['Equity'] / totalValue) - targets['Equity'];
+        const actions: string[] = [];
+        const resultCurrentAlloc: Record<string, number> = {};
 
-        if (Math.abs(equityDiff) > 0.05) { // 5% threshold
-            if (equityDiff > 0) actions.push(`Sell ${Math.abs(equityDiff * totalValue).toFixed(2)} SAR of Equity`);
-            else actions.push(`Buy ${Math.abs(equityDiff * totalValue).toFixed(2)} SAR of Equity`);
+        // Calculate deviations
+        for (const [key, targetPct] of Object.entries(targets)) {
+            const currentVal = currentAllocation[key] || 0;
+            const currentPct = currentVal / totalValue;
+            resultCurrentAlloc[key] = Number(currentPct.toFixed(4));
+
+            const diffVal = (targetPct * totalValue) - currentVal;
+            const threshold = totalValue * 0.02; // 2% threshold
+
+            if (Math.abs(diffVal) > threshold) {
+                if (diffVal > 0) actions.push(`Buy ${diffVal.toFixed(0)} SAR of ${key}`);
+                else actions.push(`Sell ${Math.abs(diffVal).toFixed(0)} SAR of ${key}`);
+            }
+        }
+
+        // Check for assets not in target
+        for (const [key, val] of Object.entries(currentAllocation)) {
+            if (!targets[key] && val > 0) {
+                resultCurrentAlloc[key] = Number((val / totalValue).toFixed(4));
+                actions.push(`Sell ${val.toFixed(0)} SAR of ${key} (Not in target strategy)`);
+            }
         }
 
         return {
             riskProfile,
             totalValue,
-            currentAllocation: {
-                Equity: (currentAllocation['Equity'] / totalValue).toFixed(2),
-                Sukuk: (currentAllocation['Sukuk'] / totalValue).toFixed(2)
-            },
+            currentAllocation: resultCurrentAlloc,
             targetAllocation: targets,
             recommendedActions: actions.length > 0 ? actions : ['Portfolio is balanced']
         };

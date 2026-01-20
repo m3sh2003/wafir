@@ -43,37 +43,40 @@ export function PortfolioRebalancePage() {
     if (!rebalanceResult) return null;
 
     // Prepare Data for Charts
-    const currentData = [
-        { name: t('equity_etf'), value: rebalanceResult.currentAllocation.Equity },
-        { name: t('fixed_income_sukuk'), value: rebalanceResult.currentAllocation.Sukuk },
-        { name: t('real_estate'), value: rebalanceResult.currentAllocation.RealEstate || 0 },
-        { name: t('cash'), value: rebalanceResult.currentAllocation.Cash || 0 },
-    ].filter(d => d.value > 0);
+    // Standardize colors
+    const colorMap: Record<string, string> = {
+        'Equity': '#3b82f6', // blue
+        'Sukuk': '#10b981', // green
+        'Real Estate': '#f97316', // orange
+        'Gold': '#eab308', // yellow
+        'Cash': '#6b7280', // gray
+    };
 
-    const targetData = [
-        { name: t('equity_etf'), value: rebalanceResult.targetAllocation.Equity },
-        { name: t('fixed_income_sukuk'), value: rebalanceResult.targetAllocation.Sukuk },
-        { name: t('real_estate'), value: rebalanceResult.targetAllocation.RealEstate || 0 },
-        { name: t('cash'), value: rebalanceResult.targetAllocation.Cash || 0 },
-    ].filter(d => d.value > 0);
+    const currentData = Object.entries(rebalanceResult.currentAllocation).map(([key, value]) => ({
+        name: t(key.toLowerCase().replace(' ', '_')) || key,
+        value: Number(value)
+    })).filter(d => d.value > 0);
+
+    const targetData = Object.entries(rebalanceResult.targetAllocation).map(([key, value]) => ({
+        name: t(key.toLowerCase().replace(' ', '_')) || key,
+        value: Number(value)
+    })).filter(d => d.value > 0);
 
     // Calculate Table Data
     const totalValue = Number(rebalanceResult.totalValue || 0);
-    const tableRows = [
-        {
-            key: 'Equity',
-            label: t('equity_etf'),
-            currentPct: rebalanceResult.currentAllocation.Equity,
-            targetPct: rebalanceResult.targetAllocation.Equity,
-        },
-        {
-            key: 'Sukuk',
-            label: t('fixed_income_sukuk'),
-            currentPct: rebalanceResult.currentAllocation.Sukuk,
-            targetPct: rebalanceResult.targetAllocation.Sukuk,
-        },
-        // Add others if needed
-    ];
+
+    // Get all unique keys from both current and target
+    const allAssetKeys = Array.from(new Set([
+        ...Object.keys(rebalanceResult.currentAllocation),
+        ...Object.keys(rebalanceResult.targetAllocation)
+    ]));
+
+    const tableRows = allAssetKeys.map(key => ({
+        key,
+        label: t(key.toLowerCase().replace(' ', '_')) || key,
+        currentPct: Number(rebalanceResult.currentAllocation[key] || 0),
+        targetPct: Number(rebalanceResult.targetAllocation[key] || 0),
+    }));
 
     return (
         <div className="p-6 space-y-8 animate-in fade-in max-w-6xl mx-auto">
@@ -113,8 +116,8 @@ export function PortfolioRebalancePage() {
                                     paddingAngle={5}
                                     dataKey="value"
                                 >
-                                    {currentData.map((_, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    {currentData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={colorMap[Object.keys(rebalanceResult.currentAllocation).find(k => (t(k.toLowerCase().replace(' ', '_')) || k) === entry.name) || 'Equity'] || COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
                                 <RechartsTooltip formatter={(value: any) => `${(Number(value) * 100).toFixed(1)}%`} />
@@ -140,8 +143,8 @@ export function PortfolioRebalancePage() {
                                     paddingAngle={5}
                                     dataKey="value"
                                 >
-                                    {targetData.map((_, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    {targetData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={colorMap[Object.keys(rebalanceResult.targetAllocation).find(k => (t(k.toLowerCase().replace(' ', '_')) || k) === entry.name) || 'Equity'] || COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
                                 <RechartsTooltip formatter={(value: any) => `${(Number(value) * 100).toFixed(1)}%`} />
