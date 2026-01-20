@@ -6,6 +6,7 @@ import '../../dashboard/providers/dashboard_provider.dart';
 import '../../budget/providers/budget_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../transactions/screens/add_transaction_screen.dart';
+import '../../ai/screens/ai_advisor_screen.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -132,11 +133,8 @@ class DashboardScreen extends ConsumerWidget {
                    // Placeholder for Rebalance
                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Rebalance Feature needs Implementation')));
                 }),
-                 // Zakat is already a tab, but adding shortcut is fine
-                _QuickActionBtn(icon: '🕌', label: 'Zakat Calc', onTap: () {
-                    // Navigate to Zakat Tab (index 3) is hard from here without context/provider for TabController. 
-                    // Just showing a msg or maybe navigating to ZakatScreen directly as a page
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please use the Zakat Tab')));
+                _QuickActionBtn(icon: '🤖', label: 'AI Advisor', onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const AiAdvisorScreen()));
                 }),
                 _QuickActionBtn(icon: '🏠', label: 'Add Asset', onTap: () {
                     // Placeholder

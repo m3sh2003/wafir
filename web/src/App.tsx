@@ -9,6 +9,7 @@ import { ZakatCalculatorPage } from './features/zakat/components/ZakatCalculator
 import { AddTransactionPage } from './features/budget/components/AddTransactionPage';
 import { AssetsDashboard } from './features/assets/components/AssetsDashboard';
 import { PortfolioRebalancePage } from './features/investments/components/PortfolioRebalancePage';
+import { AiAdvisorPage } from './features/ai/components/AiAdvisorPage';
 import { SettingsPage } from './features/settings/components/SettingsPage';
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { getToken } from './features/auth/api/auth';
@@ -101,6 +102,7 @@ function App() {
                       <Route path="/investments/rebalance" element={<PortfolioRebalancePage />} />
                       <Route path="/assets" element={<AssetsDashboard />} />
                       <Route path="/zakat" element={<ZakatCalculatorPage />} />
+                      <Route path="/ai" element={<AiAdvisorPage />} />
                       <Route path="/settings" element={<SettingsPage />} />
                     </Routes>
                   </DashboardLayout>

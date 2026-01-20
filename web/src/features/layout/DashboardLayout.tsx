@@ -35,6 +35,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                             <Link to="/investments" className={linkClass('/investments')}>{t('investments')}</Link>
                             <Link to="/assets" className={linkClass('/assets')}>{t('assets')}</Link>
                             <Link to="/zakat" className={linkClass('/zakat')}>{t('zakat')}</Link>
+                            <Link to="/ai" className={linkClass('/ai')}>{t('ai_advisor') || "AI Advisor"}</Link>
                             <Link to="/settings" className={linkClass('/settings')}>{t('settings')}</Link>
                         </div>
                     </div>

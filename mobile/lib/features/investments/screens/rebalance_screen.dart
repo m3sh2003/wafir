@@ -104,7 +104,7 @@ class _RebalanceScreenState extends ConsumerState<RebalanceScreen> {
 
   Widget _buildSummaryCard() {
     final risk = _result?['riskProfile'] ?? 'Balanced';
-    final totalValue = (_result?['totalValue'] ?? 0.0) as double;
+    final totalValue = ((_result?['totalValue'] ?? 0) as num).toDouble();
     final currencyFormatter = NumberFormat.currency(symbol: 'SAR ', decimalDigits: 2);
 
     return Container(
@@ -230,7 +230,7 @@ class _RebalanceScreenState extends ConsumerState<RebalanceScreen> {
   }
 
   PieChartSectionData _buildPieSection(double value, Color color, String title) {
-    final isTouched = false; // Simplified touch logic
+    final isTouched = false; 
     final fontSize = isTouched ? 16.0 : 12.0;
     final radius = isTouched ? 60.0 : 50.0;
 
@@ -248,7 +248,6 @@ class _RebalanceScreenState extends ConsumerState<RebalanceScreen> {
   }
 
   Widget _buildLegendItem(Color color, String label) {
-    // Remove percentage from legend label if present (it's in the chart slices)
     final cleanLabel = label.replaceAll(RegExp(r'[0-9%]+'), '').trim();
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -263,7 +262,7 @@ class _RebalanceScreenState extends ConsumerState<RebalanceScreen> {
   Widget _buildDetailedList() {
     final current = _result?['currentAllocation'] as Map<String, dynamic>? ?? {};
     final target = _result?['targetAllocation'] as Map<String, dynamic>? ?? {};
-    final totalValue = (_result?['totalValue'] ?? 0.0) as double;
+    final totalValue = ((_result?['totalValue'] ?? 0) as num).toDouble();
     final currencyFormatter = NumberFormat.currency(symbol: 'SAR ', decimalDigits: 0);
 
     // Merge keys from both current and target to ensure we show everything
@@ -275,8 +274,8 @@ class _RebalanceScreenState extends ConsumerState<RebalanceScreen> {
         const Text('Detailed Analysis', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         const SizedBox(height: 8),
         ...allKeys.map((assetKey) {
-          final curPct = (current[assetKey] ?? 0.0) as double;
-          final tgtPct = (target[assetKey] ?? 0.0) as double;
+          final curPct = ((current[assetKey] ?? 0) as num).toDouble();
+          final tgtPct = ((target[assetKey] ?? 0) as num).toDouble();
 
           if (curPct == 0 && tgtPct == 0) return const SizedBox.shrink();
 

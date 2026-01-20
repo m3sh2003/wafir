@@ -186,4 +186,14 @@ class ApiClient {
       headers: {'Authorization': 'Bearer $token'},
     ));
   }
+
+  Future<Response> chatWithAi(String message) async {
+    final token = await getToken();
+    return _dio.post('/ai/chat', 
+      data: {'message': message},
+      options: Options(
+        headers: {'Authorization': 'Bearer $token'},
+      )
+    );
+  }
 }

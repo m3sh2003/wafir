@@ -43,7 +43,6 @@ export function PortfolioRebalancePage() {
     if (!rebalanceResult) return null;
 
     // Prepare Data for Charts
-    // Standardize colors
     const colorMap: Record<string, string> = {
         'Equity': '#3b82f6', // blue
         'Sukuk': '#10b981', // green
@@ -53,11 +52,13 @@ export function PortfolioRebalancePage() {
     };
 
     const currentData = Object.entries(rebalanceResult.currentAllocation).map(([key, value]) => ({
+        key: key,
         name: t(key.toLowerCase().replace(' ', '_')) || key,
         value: Number(value)
     })).filter(d => d.value > 0);
 
     const targetData = Object.entries(rebalanceResult.targetAllocation).map(([key, value]) => ({
+        key: key,
         name: t(key.toLowerCase().replace(' ', '_')) || key,
         value: Number(value)
     })).filter(d => d.value > 0);
@@ -104,26 +105,32 @@ export function PortfolioRebalancePage() {
                 {/* Current Allocation */}
                 <div className="bg-card p-6 rounded-xl border shadow-sm flex flex-col items-center">
                     <h3 className="font-semibold text-lg mb-4">{t('current_allocation')}</h3>
-                    <div className="h-64 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie
-                                    data={currentData}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={60}
-                                    outerRadius={80}
-                                    paddingAngle={5}
-                                    dataKey="value"
-                                >
-                                    {currentData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={colorMap[Object.keys(rebalanceResult.currentAllocation).find(k => (t(k.toLowerCase().replace(' ', '_')) || k) === entry.name) || 'Equity'] || COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <RechartsTooltip formatter={(value: any) => `${(Number(value) * 100).toFixed(1)}%`} />
-                                <Legend />
-                            </PieChart>
-                        </ResponsiveContainer>
+                    <div className="h-64 w-full flex items-center justify-center">
+                        {currentData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={currentData}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={60}
+                                        outerRadius={80}
+                                        paddingAngle={5}
+                                        dataKey="value"
+                                    >
+                                        {currentData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={colorMap[entry.key] || COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <RechartsTooltip formatter={(value: any) => `${(Number(value) * 100).toFixed(1)}%`} />
+                                    <Legend />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="text-center text-muted-foreground">
+                                <p>{t('no_assets_found') || "No assets found"}</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -144,7 +151,7 @@ export function PortfolioRebalancePage() {
                                     dataKey="value"
                                 >
                                     {targetData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={colorMap[Object.keys(rebalanceResult.targetAllocation).find(k => (t(k.toLowerCase().replace(' ', '_')) || k) === entry.name) || 'Equity'] || COLORS[index % COLORS.length]} />
+                                        <Cell key={`cell-${index}`} fill={colorMap[entry.key] || COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
                                 <RechartsTooltip formatter={(value: any) => `${(Number(value) * 100).toFixed(1)}%`} />

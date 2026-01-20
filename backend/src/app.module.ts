@@ -11,6 +11,7 @@ import { SchedulerModule } from './scheduler/scheduler.module';
 import { ZakatModule } from './zakat/zakat.module';
 import { AssetsModule } from './assets/assets.module';
 import { RulesModule } from './rules/rules.module';
+import { AiModule } from './ai/ai.module';
 
 
 @Module({
@@ -40,7 +41,9 @@ import { RulesModule } from './rules/rules.module';
 
     ZakatModule,
     AssetsModule,
+    AssetsModule,
     RulesModule,
+    AiModule,
 
   ],
   controllers: [AppController],
