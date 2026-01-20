@@ -30,7 +30,7 @@ interface FullReportData {
     timestamp: string;
 }
 
-export const exportUserFinancialData = async (format: 'json' | 'csv' | 'pdf') => {
+export const exportUserFinancialData = async (format: 'json' | 'csv' | 'pdf' | 'excel') => {
     console.log('exportUserFinancialData [V2] called with format:', format);
     try {
         // 1. Fetch ALL Data

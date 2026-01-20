@@ -21,7 +21,7 @@ export function BudgetDashboard() {
     const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const [newEnvelope, setNewEnvelope] = useState({ name: '', limitAmount: 0 });
 
-    const [transactionModalStفائate, setTransactionModalState] = useState<{ isOpen: boolean; envelopeId: string; envelopeName: string } | null>(null);
+    const [transactionModalState, setTransactionModalState] = useState<{ isOpen: boolean; envelopeId: string; envelopeName: string } | null>(null);
 
     if (isLoading) return <div>Loading budget...</div>;
     if (isLoading) return <div>Loading budget...</div>;
