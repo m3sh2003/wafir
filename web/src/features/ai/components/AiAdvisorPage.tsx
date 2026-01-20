@@ -49,7 +49,8 @@ export function AiAdvisorPage() {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3000'}/ai/chat`, {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+            const response = await fetch(`${apiUrl}/ai/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
