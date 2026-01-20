@@ -248,7 +248,11 @@ export function SettingsPage() {
                             </button>
                             <button onClick={() => exportUserFinancialData('csv')} className="px-3 py-2 border rounded-md text-sm hover:bg-muted flex items-center gap-2">
                                 <Download className="w-4 h-4" />
-                                {t('export_excel')} / CSV
+                                {t('export_csv')}
+                            </button>
+                            <button onClick={() => exportUserFinancialData('excel')} className="px-3 py-2 border border-green-200 bg-green-50 text-green-700 rounded-md text-sm hover:bg-green-100 flex items-center gap-2">
+                                <FileText className="w-4 h-4" />
+                                {t('export_excel')}
                             </button>
                         </div>
                     </div>

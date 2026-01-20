@@ -19,4 +19,20 @@ class FileUtils {
       rethrow;
     }
   }
+
+  static Future<void> exportBinary(List<int> bytes, String filename, {String mimeType = 'application/octet-stream'}) async {
+    try {
+      final directory = await getTemporaryDirectory();
+      final file = File('${directory.path}/$filename');
+      await file.writeAsBytes(bytes);
+      
+      await Share.shareXFiles(
+        [XFile(file.path, mimeType: mimeType)],
+        text: 'Exported from Wafir',
+      );
+    } catch (e) {
+      print('Export Error: $e');
+      rethrow;
+    }
+  }
 }

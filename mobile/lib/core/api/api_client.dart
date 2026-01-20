@@ -172,4 +172,18 @@ class ApiClient {
       headers: {'Authorization': 'Bearer $token'},
     ));
   }
+
+  Future<Response> getPortfolio() async {
+    final token = await getToken();
+    return _dio.get('/investments/portfolio', options: Options(
+      headers: {'Authorization': 'Bearer $token'},
+    ));
+  }
+
+  Future<Response> getEnvelopes() async {
+    final token = await getToken();
+    return _dio.get('/budget/envelopes', options: Options(
+      headers: {'Authorization': 'Bearer $token'},
+    ));
+  }
 }

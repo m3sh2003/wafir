@@ -30,6 +30,8 @@ interface FullReportData {
     timestamp: string;
 }
 
+import * as XLSX from 'xlsx';
+
 export const exportUserFinancialData = async (format: 'json' | 'csv' | 'pdf' | 'excel') => {
     console.log('exportUserFinancialData [V2] called with format:', format);
     try {
@@ -40,12 +42,7 @@ export const exportUserFinancialData = async (format: 'json' | 'csv' | 'pdf' | '
         // Fetch other data in parallel
         const [accountsRes, portfolioRes, envelopesRes] = await Promise.allSettled([
             apiClient('/assets/accounts'),
-            apiClient('/investments/portfolio'), // Note: this usually requires auth header handled by apiClient? Check apiClient implementation. 
-            // Wait, apiClient handles auth.
-            // But investments might be on a different prefix if not careful, but looks like /api/investments/portfolio is correct relative to base.
-            // Actually apiClient adds /api prefix. So we just pass /investments/portfolio?
-            // Checking apiClient.ts: const url = `${API_PREFIX}${endpoint}`; where API_PREFIX includes /api. 
-            // So if endpoint has slash, it becomes /api/assets/accounts. Correct.
+            apiClient('/investments/portfolio'),
             apiClient('/budget/envelopes')
         ]);
 
@@ -67,7 +64,60 @@ export const exportUserFinancialData = async (format: 'json' | 'csv' | 'pdf' | '
             return;
         }
 
-        if (format === 'csv' || format === 'excel') {
+        if (format === 'excel') {
+            // Create Workbook
+            const wb = XLSX.utils.book_new();
+
+            // Sheet 1: Profile
+            const profileData = [
+                ['Name', profile.name],
+                ['Email', profile.email],
+                ['Risk Tolerance', profile.settings?.profile?.riskTolerance || 'Not Set'],
+                ['Timestamp', fullData.timestamp]
+            ];
+            const wsProfile = XLSX.utils.aoa_to_sheet(profileData);
+            XLSX.utils.book_append_sheet(wb, wsProfile, "Profile");
+
+            // Sheet 2: Assets
+            const assetsData = accounts.map((acc: AssetAccount) => ({
+                Name: acc.name,
+                Type: acc.type,
+                Currency: acc.currencyCode
+            }));
+            if (assetsData.length > 0) {
+                const wsAssets = XLSX.utils.json_to_sheet(assetsData);
+                XLSX.utils.book_append_sheet(wb, wsAssets, "Assets");
+            }
+
+            // Sheet 3: Investments
+            const investData = portfolio.map((item: PortfolioItem) => ({
+                Asset: item.asset.name,
+                Type: item.asset.type,
+                Amount: Number(item.amount) // Ensure number for math
+            }));
+            if (investData.length > 0) {
+                const wsInvest = XLSX.utils.json_to_sheet(investData);
+                XLSX.utils.book_append_sheet(wb, wsInvest, "Investments");
+            }
+
+            // Sheet 4: Budget
+            const budgetData = envelopes.map((env: BudgetEnvelope) => ({
+                Category: env.name,
+                Limit: Number(env.limitAmount),
+                Spent: Number(env.spent || 0),
+                Remaining: Number(env.limitAmount) - Number(env.spent || 0)
+            }));
+            if (budgetData.length > 0) {
+                const wsBudget = XLSX.utils.json_to_sheet(budgetData);
+                XLSX.utils.book_append_sheet(wb, wsBudget, "Budget");
+            }
+
+            // Write File
+            XLSX.writeFile(wb, "wafir_report.xlsx");
+            return;
+        }
+
+        if (format === 'csv') {
             // Strict CSV Logic
             const filename = 'wafir_full_data.csv';
             const mimeType = 'text/csv;charset=utf-8;';

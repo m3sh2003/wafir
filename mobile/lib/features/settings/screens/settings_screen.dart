@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../auth/screens/login_screen.dart';
 import '../../../core/utils/file_utils.dart';
 import 'dart:convert';
+import 'package:excel/excel.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -173,9 +174,107 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leading: const Icon(Icons.download),
             title: const Text('Export Data (CSV)'),
             onTap: () async {
-              // Dummy CSV generation
-              final csv = 'Name,Email,Phone\n${_nameController.text},${_emailController.text},${_phoneController.text}';
-              await FileUtils.exportData(csv, 'wafir_data.csv', mimeType: 'text/csv');
+              setState(() => _isLoading = true);
+              try {
+                  // Fetch Real Data for CSV
+                  final List<dynamic> accounts = (await ApiClient().getAccounts()).data ?? [];
+                  final List<dynamic> portfolio = (await ApiClient().getPortfolio()).data ?? [];
+                  final List<dynamic> envelopes = (await ApiClient().getEnvelopes()).data ?? [];
+                  
+                  String csv = '\uFEFF'; // BOM
+                  
+                  csv += '--- Profile ---\n';
+                  csv += 'Name,${_nameController.text}\n';
+                  csv += 'Email,${_emailController.text}\n\n';
+
+                  csv += '--- Assets ---\nName,Type,Currency\n';
+                  for (var acc in accounts) {
+                    csv += '${acc['name']},${acc['type']},${acc['currencyCode']}\n';
+                  }
+                  
+                  csv += '\n--- Investments ---\nAsset,Type,Amount\n';
+                  for (var item in portfolio) {
+                     final asset = item['asset'] ?? {};
+                     csv += '${asset['name']},${asset['type']},${item['amount']}\n';
+                  }
+
+                  csv += '\n--- Budget ---\nCategory,Limit,Spent\n';
+                  for (var env in envelopes) {
+                      csv += '${env['name']},${env['limitAmount']},${env['spent'] ?? 0}\n';
+                  }
+
+                  await FileUtils.exportData(csv, 'wafir_data.csv', mimeType: 'text/csv');
+              } catch (e) {
+                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Export Failed: $e')));
+              } finally {
+                  if (mounted) setState(() => _isLoading = false);
+              }
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.table_chart, color: Colors.green),
+            title: const Text('Export Data (Excel)', style: TextStyle(color: Colors.green)),
+            onTap: () async {
+               setState(() => _isLoading = true);
+               try {
+                  // Fetch Data
+                  final List<dynamic> accounts = (await ApiClient().getAccounts()).data ?? [];
+                  final List<dynamic> portfolio = (await ApiClient().getPortfolio()).data ?? [];
+                  final List<dynamic> envelopes = (await ApiClient().getEnvelopes()).data ?? [];
+
+                  var excel = Excel.createExcel();
+                  
+                  // Sheet 1: Profile
+                  Sheet sheet1 = excel['Profile'];
+                  sheet1.appendRow([TextCellValue('Name'), TextCellValue(_nameController.text)]);
+                  sheet1.appendRow([TextCellValue('Email'), TextCellValue(_emailController.text)]);
+                  sheet1.appendRow([TextCellValue('Phone'), TextCellValue(_phoneController.text)]);
+                  
+                  // Sheet 2: Assets
+                  Sheet sheet2 = excel['Assets'];
+                  sheet2.appendRow([TextCellValue('Name'), TextCellValue('Type'), TextCellValue('Currency')]);
+                  for (var acc in accounts) {
+                    sheet2.appendRow([
+                      TextCellValue(acc['name'] ?? ''), 
+                      TextCellValue(acc['type'] ?? ''), 
+                      TextCellValue(acc['currencyCode'] ?? '')
+                    ]);
+                  }
+
+                  // Sheet 3: Investments
+                  Sheet sheet3 = excel['Investments'];
+                  sheet3.appendRow([TextCellValue('Asset'), TextCellValue('Type'), TextCellValue('Amount')]);
+                  for (var item in portfolio) {
+                     final asset = item['asset'] ?? {};
+                     sheet3.appendRow([
+                       TextCellValue(asset['name'] ?? ''), 
+                       TextCellValue(asset['type'] ?? ''), 
+                       TextCellValue(item['amount']?.toString() ?? '0')
+                     ]);
+                  }
+
+                  // Sheet 4: Budget
+                  Sheet sheet4 = excel['Budget'];
+                  sheet4.appendRow([TextCellValue('Category'), TextCellValue('Limit'), TextCellValue('Spent')]);
+                  for (var env in envelopes) {
+                      sheet4.appendRow([
+                        TextCellValue(env['name'] ?? ''), 
+                        TextCellValue(env['limitAmount']?.toString() ?? '0'), 
+                        TextCellValue(env['spent']?.toString() ?? '0')
+                      ]);
+                  }
+
+                  // Save
+                  var fileBytes = excel.save();
+                  if (fileBytes != null) {
+                    await FileUtils.exportBinary(fileBytes, 'wafir_report.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                  }
+               } catch (e) {
+                   print(e);
+                   if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Export Failed: $e')));
+               } finally {
+                   if (mounted) setState(() => _isLoading = false);
+               }
             },
           ),
            ListTile(
