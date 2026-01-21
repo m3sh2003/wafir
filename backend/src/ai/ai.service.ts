@@ -29,14 +29,13 @@ export class AiService {
 
         try {
             // 1. Fetch User Context
-            const user = await this.usersService.findOne(userId);
-            // Simplify context for the prompt
+            const user = await this.usersService.findOneById(userId.toString());
+            if (!user) throw new Error('User not found');
+
             const context = {
                 name: user.name,
-                profile: user.profile, // Contains Risk Profile, Age, etc.
-                // In a real scenario, we'd inject InvestmentsService and BudgetService here to get live data
-                // For now, we'll assume the profile contains the summary info if available, or we advise generic
-                // but tailored to their risk profile.
+                riskProfile: user.riskProfile || 'Balanced',
+                settings: user.settings
             };
 
             // 2. Construct System Prompt

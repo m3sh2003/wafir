@@ -20,6 +20,7 @@ const scheduler_module_1 = require("./scheduler/scheduler.module");
 const zakat_module_1 = require("./zakat/zakat.module");
 const assets_module_1 = require("./assets/assets.module");
 const rules_module_1 = require("./rules/rules.module");
+const ai_module_1 = require("./ai/ai.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -50,7 +51,9 @@ exports.AppModule = AppModule = __decorate([
             scheduler_module_1.SchedulerModule,
             zakat_module_1.ZakatModule,
             assets_module_1.AssetsModule,
+            assets_module_1.AssetsModule,
             rules_module_1.RulesModule,
+            ai_module_1.AiModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

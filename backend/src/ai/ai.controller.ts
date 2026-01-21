@@ -1,6 +1,6 @@
 import { Controller, Post, Body, UseGuards, Request, HttpCode, HttpStatus } from '@nestjs/common';
 import { AiService } from './ai.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 
 class ChatDto {
@@ -18,7 +18,7 @@ export class AiController {
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Chat with Wafir AI Advisor' })
     @ApiBody({ schema: { type: 'object', properties: { message: { type: 'string' } } } })
-    async chat(@Request() req, @Body() body: ChatDto) {
+    async chat(@Request() req: any, @Body() body: ChatDto) {
         // req.user is populated by JwtStrategy
         const userId = req.user.id;
         return {
