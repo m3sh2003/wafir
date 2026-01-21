@@ -16,7 +16,9 @@ export class AiService {
         const apiKey = this.configService.get<string>('GEMINI_API_KEY');
         if (apiKey) {
             this.genAI = new GoogleGenerativeAI(apiKey);
-            this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
+            // Using 'gemini-flash-latest' which is verified to work
+            this.model = this.genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+            this.logger.log(`AI Service Initialized. Key present.`);
         } else {
             this.logger.warn('GEMINI_API_KEY not found in environment variables');
         }
@@ -29,13 +31,7 @@ export class AiService {
 
         try {
             // 1. Fetch User Context
-            let user;
-            if (userId === 'user-id-placeholder') {
-                // Mock context for debugging if auth is disabled
-                user = { name: 'Debug User', riskProfile: 'Balanced', settings: {} };
-            } else {
-                user = await this.usersService.findOneById(userId.toString());
-            }
+            const user = await this.usersService.findOneById(userId.toString());
 
             if (!user) throw new Error('User not found');
 

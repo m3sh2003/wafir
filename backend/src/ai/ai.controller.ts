@@ -13,15 +13,14 @@ class ChatDto {
 export class AiController {
     constructor(private readonly aiService: AiService) { }
 
-    // @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard)
     @Post('chat')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Chat with Wafir AI Advisor' })
     @ApiBody({ schema: { type: 'object', properties: { message: { type: 'string' } } } })
     async chat(@Request() req: any, @Body() body: ChatDto) {
         // req.user is populated by JwtStrategy
-        // const userId = req.user.id;
-        const userId = 'user-id-placeholder'; // Temporary Debug ID
+        const userId = req.user.id;
         return {
             response: await this.aiService.chat(userId, body.message)
         };
