@@ -20,7 +20,7 @@ export class AiController {
     @ApiBody({ schema: { type: 'object', properties: { message: { type: 'string' } } } })
     async chat(@Request() req: any, @Body() body: ChatDto) {
         // req.user is populated by JwtStrategy
-        const userId = req.user.id;
+        const userId = req.user.userId;
         return {
             response: await this.aiService.chat(userId, body.message)
         };

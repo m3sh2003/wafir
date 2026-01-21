@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../database/database_service.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ApiClient {
   static String? _customBaseUrl;
@@ -187,13 +189,23 @@ class ApiClient {
     ));
   }
 
-  Future<Response> chatWithAi(String message) async {
-    final token = await getToken();
-    return _dio.post('/ai/chat', 
-      data: {'message': message},
-      options: Options(
-        headers: {'Authorization': 'Bearer $token'},
-      )
+  Future<String> chatWithAi(String message) async {
+    final token = await getToken(); // Changed _getToken() to getToken()
+    if (token == null) throw Exception('Not authenticated');
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/ai/chat'), // Added /api prefix
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'message': message}),
     );
+
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception('Failed to chat with AI: ${response.statusCode} ${response.body}');
+    }
   }
 }

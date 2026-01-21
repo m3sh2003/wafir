@@ -50,7 +50,8 @@ export function AiAdvisorPage() {
         try {
             const token = localStorage.getItem('token');
             const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-            const response = await fetch(`${apiUrl}/ai/chat`, {
+            // Backend has global prefix 'api', so we must append it.
+            const response = await fetch(`${apiUrl}/api/ai/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -71,12 +72,12 @@ export function AiAdvisorPage() {
             };
 
             setMessages(prev => [...prev, aiMsg]);
-        } catch (error) {
+        } catch (error: any) {
             console.error('AI Error:', error);
             const errorMsg: Message = {
                 id: (Date.now() + 1).toString(),
                 role: 'assistant',
-                content: "I'm having trouble connecting to the server. Please check your connection or API configuration.",
+                content: `Connection Error: ${error.message || 'Unknown error'}. (API: ${import.meta.env.VITE_API_URL || 'undefined'})`,
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, errorMsg]);
