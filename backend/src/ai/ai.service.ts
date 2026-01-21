@@ -22,14 +22,21 @@ export class AiService {
         }
     }
 
-    async chat(userId: number, message: string): Promise<string> {
+    async chat(userId: number | string, message: string): Promise<string> {
         if (!this.model) {
             return "I'm sorry, I am not fully configured yet (Missing API Key). Please ask the administrator to check the server configuration.";
         }
 
         try {
             // 1. Fetch User Context
-            const user = await this.usersService.findOneById(userId.toString());
+            let user;
+            if (userId === 'user-id-placeholder') {
+                // Mock context for debugging if auth is disabled
+                user = { name: 'Debug User', riskProfile: 'Balanced', settings: {} };
+            } else {
+                user = await this.usersService.findOneById(userId.toString());
+            }
+
             if (!user) throw new Error('User not found');
 
             const context = {
