@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
+import { BudgetService } from '../budget/budget.service';
+import { AssetsService } from '../assets/assets.service';
 
 @Injectable()
 export class AiService {
@@ -11,6 +13,8 @@ export class AiService {
     constructor(
         private configService: ConfigService,
         private usersService: UsersService,
+        private budgetService: BudgetService,
+        private assetsService: AssetsService,
     ) {
         const envKey = this.configService.get<string>('GEMINI_API_KEY');
         this.apiKey = envKey || '';
@@ -28,27 +32,57 @@ export class AiService {
         }
 
         try {
-            // 1. Fetch User Context
-            const user = await this.usersService.findOneById(userId.toString());
+            const uidStr = userId.toString();
+            // 1. Fetch User Data
+            const [user, envelopes, transactions, accounts] = await Promise.all([
+                this.usersService.findOneById(uidStr),
+                this.budgetService.findAllEnvelopes(uidStr),
+                this.budgetService.findAllTransactions(uidStr),
+                this.assetsService.findAllAccounts(uidStr),
+            ]);
 
             if (!user) {
                 this.logger.error(`User not found for ID: ${userId}`);
                 throw new Error('User not found');
             }
 
-            const context = {
+            // Calculate Totals
+            const totalBudget = envelopes.reduce((sum, env) => sum + Number(env.limitAmount), 0);
+            const totalSpent = envelopes.reduce((sum, env) => sum + Number((env as any).spent || 0), 0);
+            const totalAssets = accounts.reduce((sum, acc) => sum + Number(acc.balance || 0), 0);
+            const recentTransactions = transactions.slice(0, 5).map(t => `${t.type}: ${t.amount} (${t.description || 'No Desc'})`).join(', ');
+
+            const financialContext = {
                 name: user.name,
                 riskProfile: user.riskProfile || 'Balanced',
+                budget: {
+                    totalAllocated: totalBudget,
+                    totalSpent: totalSpent,
+                    envelopes: envelopes.map(e => ({ name: e.name, limit: e.limitAmount, spent: (e as any).spent }))
+                },
+                assets: {
+                    totalValue: totalAssets,
+                    accounts: accounts.map(a => ({ name: a.name, type: a.type, balance: a.balance }))
+                },
+                recentActivity: recentTransactions
             };
 
             const systemPrompt = `
-                You are Wafir AI, an Islamic Finance Advisor.
-                User Context: ${JSON.stringify(context)}.
-                Question: "${message}"
-                Answer concisely and helpfully.
+                You are Wafir AI, an expert Islamic Finance Advisor.
+                
+                **User Financial Data:**
+                ${JSON.stringify(financialContext, null, 2)}
+                
+                **Instructions:**
+                - Use the provided data to answer the user's question directly.
+                - If the user asks for an assessment, analyze their budget utilization and asset allocation.
+                - Keep answers concise (under 3 paragraphs).
+                - Always ensure advice is Sharia-compliant.
+
+                User Question: "${message}"
             `;
 
-            // 2. Direct HTTP Call (Bypassing SDK to avoid 403)
+            // 2. Direct HTTP Call
             const url = `${this.baseUrl}?key=${this.apiKey}`;
             const payload = {
                 contents: [{ parts: [{ text: systemPrompt }] }]
@@ -56,26 +90,23 @@ export class AiService {
 
             const response = await fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
                 const errorText = await response.text();
                 this.logger.error(`Gemini API Error: ${response.status} - ${errorText}`);
+                if (response.status === 403) {
+                    return "My system is currently offline due to a security update (403). Please check back later.";
+                }
                 return `I'm having trouble connecting (Error ${response.status}). Please try again.`;
             }
 
             const data = await response.json();
-            // console.log('Gemini Response:', JSON.stringify(data, null, 2));
-
             const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (!text) {
-                return "I received an empty response from my knowledge base.";
-            }
 
+            if (!text) return "I received an empty response.";
             return text;
 
         } catch (error) {

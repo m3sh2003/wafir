@@ -6,6 +6,25 @@ const models = [
     'gemini-2.0-flash-001'
 ];
 
+const fs = require('fs');
+const path = require('path');
+
+// Load .env manually
+const envPath = path.join(__dirname, '.env');
+let apiKey = '';
+if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    const match = envContent.match(/GEMINI_API_KEY=(.*)/);
+    if (match && match[1]) {
+        apiKey = match[1].trim();
+    }
+}
+
+if (!apiKey) {
+    console.error("❌ GEMINI_API_KEY not found in .env");
+    process.exit(1);
+}
+
 function testModel(model) {
     const data = JSON.stringify({
         contents: [{ parts: [{ text: "Hello" }] }]
@@ -13,7 +32,7 @@ function testModel(model) {
 
     const options = {
         hostname: 'generativelanguage.googleapis.com',
-        path: `/v1beta/models/${model}:generateContent?key=AIzaSyDTFAZvuO8rykaehTLwfHFJPHw_GEFDkZs`,
+        path: `/v1beta/models/${model}:generateContent?key=${apiKey}`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
