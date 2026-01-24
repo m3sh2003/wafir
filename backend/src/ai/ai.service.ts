@@ -17,12 +17,9 @@ export class AiService {
         private assetsService: AssetsService,
     ) {
         const envKey = this.configService.get<string>('GEMINI_API_KEY');
+        // Fallback to process.env for some cloud environments
         const processKey = process.env.GEMINI_API_KEY;
         this.apiKey = envKey || processKey || '';
-
-        this.logger.log(`[DEBUG] Loading AI Service...`);
-        this.logger.log(`[DEBUG] ConfigService Key present: ${!!envKey}`);
-        this.logger.log(`[DEBUG] process.env Key present: ${!!processKey}`);
 
         if (!this.apiKey) {
             this.logger.warn('GEMINI_API_KEY not found in environment');
@@ -32,18 +29,8 @@ export class AiService {
     }
 
     async chat(userId: number | string, message: string): Promise<string> {
-        // Dynamic Recovery: If key was missing at startup, try to find it now
         if (!this.apiKey) {
-            const envKey = this.configService.get<string>('GEMINI_API_KEY');
-            const processKey = process.env.GEMINI_API_KEY;
-            if (envKey || processKey) {
-                this.apiKey = envKey || processKey || '';
-                this.logger.log(`[RECOVERY] Found API Key during runtime request! (Ends in ...${this.apiKey.slice(-4)})`);
-            } else {
-                this.logger.error(`[CRITICAL] GEMINI_API_KEY is STILL missing.`);
-                this.logger.log(`[DEBUG] Available Env Keys: ${Object.keys(process.env).join(', ')}`);
-                return "Configuration Error: Missing API Key. (Check server logs for Env dump)";
-            }
+            return "Configuration Error: Missing API Key.";
         }
 
         try {
