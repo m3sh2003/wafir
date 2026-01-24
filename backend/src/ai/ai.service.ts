@@ -29,6 +29,24 @@ export class AiService {
     }
 
     async chat(userId: number | string, message: string): Promise<string> {
+        // --- DEBUG COMPONENT START ---
+        if (message.trim().toLowerCase() === '/debug') {
+            const envKey = this.configService.get<string>('GEMINI_API_KEY');
+            const procKey = process.env.GEMINI_API_KEY;
+            const finalKey = this.apiKey;
+
+            return `
+**Diagnostic Report:**
+- **Status:** ${finalKey ? 'Ready' : 'MISSING KEY'}
+- **Loaded Key Length:** ${finalKey ? finalKey.length : 0}
+- **Ends With:** ${finalKey ? '...' + finalKey.slice(-4) : 'N/A'}
+- **ConfigService Detection:** ${envKey ? 'Yes' : 'No'}
+- **Process.env Detection:** ${procKey ? 'Yes' : 'No'}
+- **User ID:** ${userId}
+            `.trim();
+        }
+        // --- DEBUG COMPONENT END ---
+
         if (!this.apiKey) {
             return "Configuration Error: Missing API Key.";
         }
