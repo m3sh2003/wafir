@@ -43,6 +43,7 @@ export class AiService {
 - **ConfigService Detection:** ${envKey ? 'Yes' : 'No'}
 - **Process.env Detection:** ${procKey ? 'Yes' : 'No'}
 - **User ID:** ${userId}
+- **Available Env Keys:** ${Object.keys(process.env).join(', ')}
             `.trim();
         }
         // --- DEBUG COMPONENT END ---
