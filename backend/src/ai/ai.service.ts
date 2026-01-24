@@ -32,8 +32,18 @@ export class AiService {
     }
 
     async chat(userId: number | string, message: string): Promise<string> {
+        // Dynamic Recovery: If key was missing at startup, try to find it now
         if (!this.apiKey) {
-            return "Configuration Error: Missing API Key.";
+            const envKey = this.configService.get<string>('GEMINI_API_KEY');
+            const processKey = process.env.GEMINI_API_KEY;
+            if (envKey || processKey) {
+                this.apiKey = envKey || processKey || '';
+                this.logger.log(`[RECOVERY] Found API Key during runtime request! (Ends in ...${this.apiKey.slice(-4)})`);
+            } else {
+                this.logger.error(`[CRITICAL] GEMINI_API_KEY is STILL missing.`);
+                this.logger.log(`[DEBUG] Available Env Keys: ${Object.keys(process.env).join(', ')}`);
+                return "Configuration Error: Missing API Key. (Check server logs for Env dump)";
+            }
         }
 
         try {
