@@ -17,10 +17,15 @@ export class AiService {
         private assetsService: AssetsService,
     ) {
         const envKey = this.configService.get<string>('GEMINI_API_KEY');
-        this.apiKey = envKey || '';
+        const processKey = process.env.GEMINI_API_KEY;
+        this.apiKey = envKey || processKey || '';
+
+        this.logger.log(`[DEBUG] Loading AI Service...`);
+        this.logger.log(`[DEBUG] ConfigService Key present: ${!!envKey}`);
+        this.logger.log(`[DEBUG] process.env Key present: ${!!processKey}`);
 
         if (!this.apiKey) {
-            this.logger.warn('GEMINI_API_KEY not found');
+            this.logger.warn('GEMINI_API_KEY not found in environment');
         } else {
             this.logger.log(`AI Service ready. Using Key ending in ...${this.apiKey.slice(-4)}`);
         }
