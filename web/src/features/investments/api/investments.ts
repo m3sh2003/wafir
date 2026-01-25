@@ -37,22 +37,53 @@ async function fetchPortfolio(): Promise<UserPortfolioItem[]> {
     const user = await supabase.auth.getUser();
     if (!user.data.user) return [];
 
-    const { data, error } = await supabase
-        .from('user_portfolios')
+    // Query new Holdings table (joined with Assets via asset_id if possible, or just raw)
+    // Note: The new Holding entity has 'instrument_code'. If we want rich data, we need to join 'assets' table on instrument_code matching name or similar?
+    // Actually, in the new system, 'Holdings' are raw user assets. 'Assets' table contains 'Investment Products'.
+    // We should try to match them if possible, OR just return them as generic assets.
+
+    // Let's fetch holdings linked to user's accounts
+    const { data: accounts, error } = await supabase
+        .from('accounts')
         .select(`
-            *,
-            asset:assetId (*)
+            id,
+            holdings (
+                id,
+                instrument_code,
+                units,
+                asset_id
+            )
         `)
-        .eq('userId', user.data.user.id);
+        .eq('user_id', user.data.user.id);
 
     if (error) throw new Error(error.message);
 
-    return data.map((p: any) => ({
-        id: p.id,
-        amount: p.amount,
-        purchasedAt: p.purchasedAt,
-        asset: p.asset
-    }));
+    // Context: The Investments page expects 'Asset' details (Risk, Return, etc.).
+    // If the user added a custom holding (e.g. "Cash"), it might not match an 'Asset' product.
+    // However, to show it in the list, we can fabricate a generic asset wrapper.
+
+    const portfolioItems: UserPortfolioItem[] = [];
+
+    accounts?.forEach((acc: any) => {
+        acc.holdings?.forEach((h: any) => {
+            portfolioItems.push({
+                id: h.id.toString(),
+                amount: h.units.toString(), // Assuming units = value for now, or we need a price. In manual entry, user enters 'Value/Units'.
+                purchasedAt: new Date().toISOString(), // Mock date as date not tracked in simple holding
+                asset: {
+                    id: h.asset_id || 'manual-' + h.id,
+                    name: h.instrument_code,
+                    type: acc.type === 'bank' ? 'Cash' : 'Investment', // Derby type from Account
+                    riskLevel: 'Low', // Default
+                    expectedReturn: '0',
+                    minInvestment: '0',
+                    description: 'Manual Asset'
+                }
+            });
+        });
+    });
+
+    return portfolioItems;
 }
 
 async function fetchUserProfile(): Promise<{ riskProfile: string | null }> {

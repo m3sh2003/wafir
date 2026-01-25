@@ -37,15 +37,74 @@ export const calculateZakat = async (data: ZakatRequest): Promise<ZakatResult> =
     };
 };
 
+import { supabase } from '../../../lib/supabase';
+
 export const calculateSystemZakat = async (): Promise<any> => {
-    // Serverless Mock for Nisab (Gold Standard)
-    // 85 grams of Gold * ~$85/gram (Approx market rate) = ~$7225
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // 1. Fetch User Holdings
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) throw new Error('Not authenticated');
+
+    const { data: accounts, error } = await supabase
+        .from('accounts')
+        .select(`
+            *,
+            holdings (
+                units,
+                is_sharia_compliant,
+                is_primary_home,
+                instrument_code
+            )
+        `)
+        .eq('user_id', user.data.user.id);
+
+    if (error) throw new Error(error.message);
+
+    // 2. Sum up Zakatable Assets
+    let totalAssetsSAR = 0;
+    const breakdown = {
+        cash_sar: 0,
+        investments_sar: 0,
+        real_estate_sar: 0
+    };
+
+    accounts?.forEach((acc: any) => {
+        acc.holdings?.forEach((h: any) => {
+            const val = Number(h.units);
+
+            // Logic: Exclude Primary Home by default
+            if (h.is_primary_home) return;
+
+            // Categorize
+            if (acc.type === 'bank' || acc.type === 'cash' || h.instrument_code.toLowerCase().includes('cash')) {
+                breakdown.cash_sar += val;
+                totalAssetsSAR += val;
+            } else if (acc.type === 'real_estate') {
+                breakdown.real_estate_sar += val;
+                totalAssetsSAR += val;
+            } else {
+                breakdown.investments_sar += val;
+                totalAssetsSAR += val;
+            }
+        });
+    });
+
+    // 3. Nisab Logic (Silver Standard is safer for Zakat, but User requested Gold in old code. Using Gold ~85g)
+    // Gold Price (Mock approx). TODO: Fetch live price.
+    const GOLD_PRICE_SAR_PER_GRAM = 300;
+    const NISAB_SAR = 85 * GOLD_PRICE_SAR_PER_GRAM; // ~25,500 SAR
+
+    const zakatDue = totalAssetsSAR >= NISAB_SAR ? totalAssetsSAR * 0.025 : 0;
 
     return {
-        nisab_usd: 7225,
-        gold_price_usd: 85,
-        currency: 'USD',
-        last_updated: new Date().toISOString()
+        zakat_due_sar: zakatDue,
+        total_assets_sar: totalAssetsSAR,
+        nisab_sar: NISAB_SAR,
+        currency: 'SAR',
+        breakdown: breakdown,
+        is_above_nisab: totalAssetsSAR >= NISAB_SAR,
+        calculation_basis: '2.5% of Zakatable Assets (Hijri)',
+        message: totalAssetsSAR >= NISAB_SAR
+            ? 'Your wealth exceeds the Nisab threshold. Zakat is due.'
+            : 'Total zakatable assets are below the Nisab threshold. No Zakat due.'
     };
 };
