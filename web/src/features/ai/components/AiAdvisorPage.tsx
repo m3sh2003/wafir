@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Send, Bot, User, Sparkles, Loader2 } from 'lucide-react';
 import { useSettings } from '../../../contexts/SettingsContext';
+import { supabase } from '../../../lib/supabase';
 
 interface Message {
     id: string;
@@ -48,7 +49,12 @@ export function AiAdvisorPage() {
         setIsTyping(true);
 
         try {
-            const token = localStorage.getItem('token');
+            // Get valid token from Supabase session
+            const session = await supabase.auth.getSession();
+            const token = session.data.session?.access_token;
+
+            if (!token) throw new Error('Authentication session missing');
+
             // Serverless: AI Requests go to Next.js API (External)
             let apiUrl = import.meta.env.VITE_AI_API_URL || 'http://localhost:3000';
             if (apiUrl.endsWith('/')) {
@@ -66,7 +72,8 @@ export function AiAdvisorPage() {
 
             const data = await response.json();
 
-            if (!response.ok) throw new Error(data.message || 'AI request failed');
+            // Backend returns { error: '...' } not message
+            if (!response.ok) throw new Error(data.error || data.message || 'AI request failed');
 
             const aiMsg: Message = {
                 id: (Date.now() + 1).toString(),
@@ -85,7 +92,7 @@ export function AiAdvisorPage() {
             const errorMsg: Message = {
                 id: (Date.now() + 1).toString(),
                 role: 'assistant',
-                content: `Connection Error: ${error.message || 'Unknown error'}. (API: ${rawUrl})`,
+                content: `Error: ${error.message || 'Unknown error'}.`,
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, errorMsg]);
