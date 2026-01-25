@@ -27,8 +27,9 @@ class ApiClient {
     if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
        return _customBaseUrl ?? 'http://localhost:3090/api';
     }
-    // For Android Emulator, use 10.0.2.2? Or keep default cloud for release.
-    // Use stored URL if available, otherwise default to Production Cloud Link
+    if (!kIsWeb && Platform.isAndroid) {
+      return _customBaseUrl ?? 'http://10.0.2.2:3090/api';
+    }
     return _customBaseUrl ?? 'https://wafir.onrender.com/api';
   }
 
