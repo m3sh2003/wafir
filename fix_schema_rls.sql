@@ -1,4 +1,4 @@
--- Enable RLS on all tables
+-- Enable RLS and Grant Permissions
 ALTER TABLE public.envelopes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
@@ -6,6 +6,35 @@ ALTER TABLE public.accounts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.holdings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_portfolios ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.assets ENABLE ROW LEVEL SECURITY;
+
+GRANT ALL ON TABLE public.envelopes TO authenticated;
+GRANT ALL ON TABLE public.envelopes TO service_role;
+
+GRANT ALL ON TABLE public.transactions TO authenticated;
+GRANT ALL ON TABLE public.transactions TO service_role;
+
+GRANT ALL ON TABLE public.categories TO authenticated;
+GRANT ALL ON TABLE public.categories TO service_role;
+
+GRANT ALL ON TABLE public.accounts TO authenticated;
+GRANT ALL ON TABLE public.accounts TO service_role;
+
+GRANT ALL ON TABLE public.holdings TO authenticated;
+GRANT ALL ON TABLE public.holdings TO service_role;
+
+GRANT ALL ON TABLE public.user_portfolios TO authenticated;
+GRANT ALL ON TABLE public.user_portfolios TO service_role;
+
+GRANT ALL ON TABLE public.users TO authenticated;
+GRANT ALL ON TABLE public.users TO service_role;
+
+GRANT ALL ON TABLE public.assets TO authenticated;
+GRANT ALL ON TABLE public.assets TO service_role;
+
+-- Grant permissions on sequences (fixes "permission denied for sequence" error)
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO service_role;
 
 -- Envelopes (CamelCase userId)
 DROP POLICY IF EXISTS "Users can see own envelopes" ON public.envelopes;
@@ -97,4 +126,30 @@ CREATE POLICY "Users can update own profile" ON public.users FOR UPDATE TO authe
 -- Assets (Investment Products - Public Read)
 ALTER TABLE public.assets ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Public read assets" ON public.assets;
-CREATE POLICY "Public read assets" ON public.assets FOR SELECT TO authenticated USING (true);
+-- User Sync Trigger (Auth -> Public)
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.users (id, email, name, "createdAt", "updatedAt")
+  VALUES (new.id, new.email, new.raw_user_meta_data->>'name', NOW(), NOW())
+  ON CONFLICT (id) DO NOTHING;
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger Definition
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+-- Backfill Existing Users (Fix for current missing user)
+INSERT INTO public.users (id, email, name, "createdAt", "updatedAt")
+SELECT 
+  id, 
+  email, 
+  raw_user_meta_data->>'name', 
+  created_at, 
+  created_at
+FROM auth.users
+ON CONFLICT (id) DO NOTHING;

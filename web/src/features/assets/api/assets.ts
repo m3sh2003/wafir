@@ -97,7 +97,6 @@ async function createHolding(accountId: number, dto: CreateHoldingDto): Promise<
             account_id: accountId,
             instrument_code: dto.instrumentCode,
             units: dto.units,
-            is_sharia_compliant: dto.isShariaCompliant || false,
             is_primary_home: dto.isPrimaryHome || false
         })
         .select()

@@ -45,8 +45,8 @@ export function AssetsDashboard() {
             });
             setSelectedAccountForHolding(null); // Close modal
             setNewHolding({ instrumentCode: '', units: 0, isShariaCompliant: true, isPrimaryHome: false });
-        } catch (err) {
-            alert('Failed to add holding');
+        } catch (err: any) {
+            alert(`Failed to add holding: ${err.message || err}`);
         }
     };
 
