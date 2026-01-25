@@ -11,14 +11,25 @@ import 'core/api/api_client.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ApiClient.loadBaseUrl();
+
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: 'https://uustktapnkmmbvzcpdxn.supabase.co',
+    anonKey: 'sb_publishable_cDmyKeNgWnLcocdXLt9Z-Q_2INoo6i0',
+  );
   
-  // Check for existing token
+  // Check for existing token (Legacy/Migration check)
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('token');
-  final isLoggedIn = token != null && token.isNotEmpty;
+  
+  // Check Supabase Auth State
+  final session = Supabase.instance.client.auth.currentSession;
+  final isLoggedIn = session != null || (token != null && token.isNotEmpty);
 
   runApp(ProviderScope(child: WafirApp(isLoggedIn: isLoggedIn)));
 }

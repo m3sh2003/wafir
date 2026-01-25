@@ -26,12 +26,10 @@ import { AiModule } from './ai/ai.module';
       database: process.env.DB_NAME || 'wafir',
       autoLoadEntities: true,
       synchronize: true, // Only for dev!
-      ssl: process.env.NODE_ENV === 'production',
-      extra: process.env.NODE_ENV === 'production' ? {
-        ssl: {
-          rejectUnauthorized: false,
-        },
-      } : {},
+      ssl: {
+        rejectUnauthorized: false,
+      },
+      schema: 'public',
     }),
     AuthModule,
     UsersModule,

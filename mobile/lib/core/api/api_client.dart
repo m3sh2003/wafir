@@ -22,10 +22,10 @@ class ApiClient {
 
   // Dynamic Base URL based on platform
   static String get baseUrl {
-    if (kIsWeb) return 'http://localhost:3000/api';
+    if (kIsWeb) return 'http://localhost:3090/api';
     // For Windows/Linux/Mac local development, use localhost
     if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
-       return _customBaseUrl ?? 'http://localhost:3000/api';
+       return _customBaseUrl ?? 'http://localhost:3090/api';
     }
     // For Android Emulator, use 10.0.2.2? Or keep default cloud for release.
     // Use stored URL if available, otherwise default to Production Cloud Link
@@ -194,7 +194,7 @@ class ApiClient {
     if (token == null) throw Exception('Not authenticated');
 
     final response = await http.post(
-      Uri.parse('$baseUrl/api/ai/chat'), // Added /api prefix
+      Uri.parse('$baseUrl/ai/chat'), // Removed extra /api prefix as baseUrl includes it
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
