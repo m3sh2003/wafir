@@ -71,6 +71,7 @@ async function createAccount(dto: CreateAccountDto): Promise<Account> {
             type: dto.type,
             currency_code: dto.currencyCode, // Snake case in DB
             is_primary: false,
+            balance: 0,
             user_id: user.data.user.id // Entity has @Column({ name: 'user_id' })! So this IS snake_case for Accounts!
         })
         .select()

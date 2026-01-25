@@ -30,8 +30,8 @@ export function AssetsDashboard() {
             await createAccount.mutateAsync(newAccount);
             setIsAccountModalOpen(false);
             setNewAccount({ name: '', type: 'bank', currencyCode: 'SAR' });
-        } catch (err) {
-            alert('Failed to create account');
+        } catch (err: any) {
+            alert(`Failed to create account: ${err.message || err}`);
         }
     };
 
