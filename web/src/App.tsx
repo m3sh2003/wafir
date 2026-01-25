@@ -11,8 +11,7 @@ import { AssetsDashboard } from './features/assets/components/AssetsDashboard';
 import { PortfolioRebalancePage } from './features/investments/components/PortfolioRebalancePage';
 import { AiAdvisorPage } from './features/ai/components/AiAdvisorPage';
 import { SettingsPage } from './features/settings/components/SettingsPage';
-import { SettingsProvider, useSettings } from './contexts/SettingsContext';
-import { getToken } from './features/auth/api/auth';
+import { SettingsProvider } from './contexts/SettingsContext';
 import { OnboardingPage } from './features/users/pages/OnboardingPage';
 
 const queryClient = new QueryClient();
@@ -20,54 +19,32 @@ const queryClient = new QueryClient();
 
 
 import { useEffect, useState } from 'react';
-import { authApi, setToken, setUser } from './features/auth/api/auth';
+import { supabase } from './lib/supabase';
 
-function AutoLoginWrapper({ children }: { children: ReactNode }) {
-  const { hydrateSettings } = useSettings();
-  const [isChecking, setIsChecking] = useState(!getToken());
-  const [error, setError] = useState<string | null>(null);
+function RequireAuth({ children }: { children: ReactNode }) {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const attemptAutoLogin = async () => {
-      const token = getToken();
-      if (token) {
-        await hydrateSettings(); // Hydrate settings on valid session
-        setIsChecking(false);
-        return;
-      }
+    // Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+    });
 
-      try {
-        console.log('Attempting Dev Auto-Login...');
-        const res = await authApi.login('ahmed@example.com', 'password123');
-        setToken(res.access_token);
-        setUser(res.user);
-        await hydrateSettings(); // Hydrate settings after new login
-        setIsChecking(false);
-      } catch (err: any) {
-        console.error('Auto-login failed', err);
-        setError(err.message || 'Unknown Error');
-      }
-    };
+    // Listen for changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
 
-    attemptAutoLogin();
+    return () => subscription.unsubscribe();
   }, []);
 
-  if (error) {
-    return (
-      <div className="h-screen flex flex-col items-center justify-center gap-4">
-        <h1 className="text-xl font-bold text-red-500">Auto-Login Failed</h1>
-        <p className="text-muted-foreground p-4 bg-muted rounded font-mono text-sm">{error}</p>
-        <button onClick={() => window.location.href = '/login'} className="px-4 py-2 bg-primary text-primary-foreground rounded">Go to Login</button>
-      </div>
-    );
+  if (isAuthenticated === null) {
+    return <div className="h-screen flex items-center justify-center text-primary">Loading...</div>; // Or a spinner
   }
 
-  if (isChecking) {
-    return <div className="h-screen flex items-center justify-center text-primary">Autologging in (Dev Mode)...</div>;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
   }
-
-  // Double check token after logic
-  if (!getToken()) return <Navigate to="/login" replace />;
 
   return <>{children}</>;
 }
@@ -87,12 +64,12 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/onboarding" element={
-                <AutoLoginWrapper>
+                <RequireAuth>
                   <OnboardingPage />
-                </AutoLoginWrapper>
+                </RequireAuth>
               } />
               <Route path="*" element={
-                <AutoLoginWrapper>
+                <RequireAuth>
                   <DashboardLayout>
                     <Routes>
                       <Route path="/" element={<OverviewDashboard />} />
@@ -106,7 +83,7 @@ function App() {
                       <Route path="/settings" element={<SettingsPage />} />
                     </Routes>
                   </DashboardLayout>
-                </AutoLoginWrapper>
+                </RequireAuth>
               } />
             </Routes>
           </div>

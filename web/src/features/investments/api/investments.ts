@@ -4,7 +4,7 @@ import { supabase } from '../../../lib/supabase';
 export interface Asset {
     id: string;
     name: string;
-    type: string; // 'Sukuk', 'ETF', 'REIT', etc.
+    type: string;
     riskLevel: 'Low' | 'Medium' | 'High';
     expectedReturn: string;
     minInvestment: string;
@@ -25,16 +25,9 @@ export interface BuyInvestmentDto {
 
 // Fetchers
 async function fetchProducts(): Promise<Asset[]> {
-    // Investment products likely public or simple
-    // Assuming 'investment_products' or 'assets'?
-    // Wait, Portfolio entity imports `Asset` from `../../assets/entities/asset.entity`.
-    // Let's assume there is a table for products.
-    // Legacy API was `/investments/products`.
-    // If table is `investment_products`:
-    const { data, error } = await supabase.from('investment_products').select('*');
+    const { data, error } = await supabase.from('assets').select('*');
     if (error) {
-        // Fallback or empty if not found
-        console.warn('Investment products fetch failed', error);
+        console.warn('Investment products (assets) fetch failed', error);
         return [];
     }
     return data;
@@ -45,31 +38,30 @@ async function fetchPortfolio(): Promise<UserPortfolioItem[]> {
     if (!user.data.user) return [];
 
     const { data, error } = await supabase
-        .from('user_portfolios') // Entity @Entity('user_portfolios')
+        .from('user_portfolios')
         .select(`
             *,
             asset:assetId (*)
         `)
-        .eq('userId', user.data.user.id); // CamelCase column quoted
+        .eq('userId', user.data.user.id);
 
     if (error) throw new Error(error.message);
 
     return data.map((p: any) => ({
         id: p.id,
         amount: p.amount,
-        purchasedAt: p.purchasedAt, // CamelCase
-        asset: p.asset // Joined asset
+        purchasedAt: p.purchasedAt,
+        asset: p.asset
     }));
 }
 
 async function fetchUserProfile(): Promise<{ riskProfile: string | null }> {
-    // Fetch from 'users' table
     const user = await supabase.auth.getUser();
     if (!user.data.user) return { riskProfile: null };
 
     const { data, error } = await supabase
         .from('users')
-        .select('riskProfile') // CamelCase
+        .select('riskProfile')
         .eq('id', user.data.user.id)
         .single();
 
@@ -81,14 +73,13 @@ async function buyInvestment(dto: BuyInvestmentDto): Promise<any> {
     const user = await supabase.auth.getUser();
     if (!user.data.user) throw new Error('Not authenticated');
 
-    // Insert into user_portfolios
     const { data, error } = await supabase
         .from('user_portfolios')
         .insert({
-            userId: user.data.user.id, // CamelCase
-            assetId: dto.productId,   // CamelCase
+            userId: user.data.user.id,
+            assetId: dto.productId,
             amount: dto.amount,
-            purchasedAt: new Date().toISOString() // CamelCase
+            purchasedAt: new Date().toISOString()
         })
         .select()
         .single();
@@ -98,15 +89,10 @@ async function buyInvestment(dto: BuyInvestmentDto): Promise<any> {
 }
 
 async function sellInvestment(_dto: BuyInvestmentDto): Promise<any> {
-    // Simplify: just remove amount or delete row.
-    // Real implementation needs check existing.
-    // This is a Placeholder for legacy complex logic.
     throw new Error('Sell not fully migrated to serverless yet');
 }
 
 async function rebalancePortfolio(): Promise<any> {
-    // Client-side rebalancing suggestion?
-    // For now, return a dummy success or generic message as server calculation is removed.
     return { message: "Rebalancing analysis is currently available only in Premium (Serverless Mode Restriction)." };
 }
 
@@ -157,5 +143,3 @@ export const useRebalancePortfolio = () => {
         mutationFn: rebalancePortfolio
     });
 };
-
-
