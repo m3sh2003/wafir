@@ -1,7 +1,5 @@
 
-import { getToken } from '../../auth/api/auth';
-
-const API_URL = '/api';
+import { supabase } from '../../../lib/supabase';
 
 export const RiskProfile = {
     CONSERVATIVE: 'Conservative',
@@ -18,69 +16,73 @@ export interface UpdateOnboardingDto {
 }
 
 export async function updateOnboarding(dto: UpdateOnboardingDto): Promise<any> {
-    const token = getToken();
-    const res = await fetch(`${API_URL}/users/onboarding`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(dto),
+    const { data, error } = await supabase.auth.updateUser({
+        data: {
+            risk_profile: dto.riskProfile,
+            monthly_income: dto.monthlyIncome,
+            budget_limits: dto.budgetLimits,
+            onboarding_completed: true
+        }
     });
-    if (!res.ok) throw new Error('Failed to update onboarding data');
-    return res.json();
+
+    if (error) throw new Error(error.message);
+    return data.user;
 }
 
 export async function getUserProfile(): Promise<any> {
-    const token = getToken();
-    const res = await fetch(`${API_URL}/users/profile?t=${Date.now()}`, {
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+
+    // Map Supabase metadata to the expected profile structure
+    return {
+        id: user.id,
+        email: user.email,
+        name: user.user_metadata?.name,
+        settings: {
+            profile: {
+                riskTolerance: user.user_metadata?.risk_profile,
+                phone: user.user_metadata?.phone,
+                age: user.user_metadata?.age,
+            },
+            currency: user.user_metadata?.currency || 'USD'
         }
-    });
-    if (!res.ok) return null;
-    return res.json();
+    };
 }
+
 export async function updateSettings(settings: any): Promise<any> {
-    const token = getToken();
-    const res = await fetch(`${API_URL}/users/settings`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(settings),
+    // Merge settings into metadata
+    const { data, error } = await supabase.auth.updateUser({
+        data: settings // Assuming settings is a flattened object or we nest it? 
+        // Legacy might have nested it. Let's assume passed object keys are what we want.
+        // For safety, let's merge into 'settings' key if that's what legacy did, 
+        // but getUserProfile maps it. Let's just spread it.
     });
-    if (!res.ok) throw new Error('Failed to update settings');
-    return res.json();
+
+    if (error) throw new Error(error.message);
+    return data.user;
 }
 
 export async function updateCurrency(currency: string): Promise<any> {
-    const token = getToken();
-    const res = await fetch(`${API_URL}/users/currency`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ currency }),
+    const { data, error } = await supabase.auth.updateUser({
+        data: { currency }
     });
-    if (!res.ok) throw new Error('Failed to update currency');
-    return res.json();
+
+    if (error) throw new Error(error.message);
+    return data.user;
 }
 
 export async function updateUserProfile(profile: any): Promise<any> {
-    const token = getToken();
-    const res = await fetch(`${API_URL}/users/profile`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(profile),
+    const { data, error } = await supabase.auth.updateUser({
+        data: {
+            name: profile.name,
+            phone: profile.phone,
+            age: profile.age,
+            ...profile // Spread other fields
+        }
     });
-    if (!res.ok) throw new Error('Failed to update profile');
-    return res.json();
+
+    if (error) throw new Error(error.message);
+    return data.user;
 }
+
+

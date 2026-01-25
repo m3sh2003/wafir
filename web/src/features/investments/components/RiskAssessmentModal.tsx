@@ -3,7 +3,7 @@ import { X, Check } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getToken } from '../../auth/api/auth';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = `${import.meta.env.VITE_AI_API_URL || 'http://localhost:3000'}/api`;
 
 async function setRiskProfile(score: number): Promise<any> {
     const token = getToken();

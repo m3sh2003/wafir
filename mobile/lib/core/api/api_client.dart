@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../database/database_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ApiClient {
   static String? _customBaseUrl;
@@ -28,7 +29,7 @@ class ApiClient {
        return _customBaseUrl ?? 'http://localhost:3090/api';
     }
     if (!kIsWeb && Platform.isAndroid) {
-      return _customBaseUrl ?? 'http://10.0.2.2:3090/api';
+      return _customBaseUrl ?? 'http://10.0.2.2:3000/api';
     }
     return _customBaseUrl ?? 'https://wafir.onrender.com/api';
   }
@@ -48,7 +49,18 @@ class ApiClient {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
-  ));
+  )) {
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        // Add Bearer Token from Supabase Session
+        final session = Supabase.instance.client.auth.currentSession;
+        if (session != null) {
+          options.headers['Authorization'] = 'Bearer ${session.accessToken}';
+        }
+        return handler.next(options);
+      },
+    ));
+  }
 
   void updateBaseUrl() {
     _dio.options.baseUrl = baseUrl;
@@ -190,7 +202,7 @@ class ApiClient {
     ));
   }
 
-  Future<String> chatWithAi(String message) async {
+  Future<Map<String, dynamic>> chatWithAi(String message) async {
     final token = await getToken(); // Changed _getToken() to getToken()
     if (token == null) throw Exception('Not authenticated');
 
@@ -204,7 +216,7 @@ class ApiClient {
     );
 
     if (response.statusCode == 200) {
-      return response.body;
+      return jsonDecode(response.body);
     } else {
       throw Exception('Failed to chat with AI: ${response.statusCode} ${response.body}');
     }

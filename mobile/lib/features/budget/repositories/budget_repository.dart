@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/database/database_service.dart';
 import '../../../core/network/network_info.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class BudgetRepository {
   final ApiClient _apiClient;
@@ -29,10 +30,10 @@ class BudgetRepository {
   }
 
   Future<void> _syncEnvelopes() async {
-    // Assuming backend endpoint /budget/envelopes based on standard REST
-    // Verified: BudgetController is @Controller('budget')
-    final response = await _apiClient.request('/budget/envelopes', method: 'GET');
-    final List<dynamic> data = response.data;
+    // Direct Supabase Access for Offline-First / Serverless Architecture
+    final data = await Supabase.instance.client
+        .from('envelopes')
+        .select();
     
     final db = await _databaseService.database;
     final batch = db.batch();
@@ -44,9 +45,9 @@ class BudgetRepository {
           'id': json['id'],
           'name': json['name'],
           'limit_amount': json['limitAmount'] ?? json['limit_amount'] ?? 0.0,
-          'spent_amount': json['spent'] ?? json['spent_amount'] ?? 0.0,
+          'spent_amount': 0.0, // Transactions aggregation would be needed here or separate select
           'period': json['period'],
-          'userId': json['userId'] ?? json['user_id'],
+          'userId': json['userId'],
         },
         conflictAlgorithm: ConflictAlgorithm.replace,
       );

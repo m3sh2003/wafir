@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart'; // Keep for future use
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/main/screens/main_screen.dart';
 
@@ -10,8 +11,6 @@ import 'l10n/app_localizations.dart';
 import 'core/api/api_client.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

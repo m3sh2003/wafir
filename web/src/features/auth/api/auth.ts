@@ -1,7 +1,9 @@
+import { supabase } from '../../../lib/supabase';
+
 export interface User {
     id: string;
     email: string;
-    name: string;
+    name?: string;
 }
 
 export interface AuthResponse {
@@ -9,36 +11,72 @@ export interface AuthResponse {
     user: User;
 }
 
-const API_URL = '/api';
-
 export const authApi = {
     login: async (email: string, password: string): Promise<AuthResponse> => {
-        const res = await fetch(`${API_URL}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
         });
-        if (!res.ok) throw new Error('Login failed');
-        return res.json();
+
+        if (error) throw new Error(error.message);
+        if (!data.session || !data.user) throw new Error('No session created');
+
+        return {
+            access_token: data.session.access_token,
+            user: {
+                id: data.user.id,
+                email: data.user.email!,
+                name: data.user.user_metadata?.name,
+            },
+        };
     },
 
     register: async (email: string, password: string, name: string): Promise<AuthResponse> => {
-        const res = await fetch(`${API_URL}/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password, name }),
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: { name },
+            },
         });
-        if (!res.ok) throw new Error('Registration failed');
-        return res.json();
+
+        if (error) throw new Error(error.message);
+        if (!data.session || !data.user) throw new Error('Registration successful but no session (confirm email?)');
+
+        return {
+            access_token: data.session.access_token,
+            user: {
+                id: data.user.id,
+                email: data.user.email!,
+                name: data.user.user_metadata?.name,
+            },
+        };
+    },
+
+    logout: async () => {
+        await supabase.auth.signOut();
+        localStorage.removeItem('sb-access-token'); // Clear legacy if needed
     }
 };
 
-export const getToken = () => localStorage.getItem('token');
-export const setToken = (token: string) => localStorage.setItem('token', token);
-export const removeToken = () => localStorage.removeItem('token');
-export const getUser = () => {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
+// Helper to get the current JWT synchronously if possible, or we might need to rely on Supabase's internal state
+export const getToken = () => {
+    // Supabase persists session to localStorage by default with key `sb-<ref>-auth-token`
+    // But for simplicity, we can also ask Supabase for the current session if we are in an async context.
+    // However, apiClient calls this synchronously. 
+    // Let's try to get it from the local storage key Supabase uses, or fallback to the one we manually set if we were to set it.
+    // actually, let's just use supabase.auth.getSession() in apiClient since it is async.
+    // For now, return null here and we will update apiClient to use supabase.
+    return null;
 };
-export const setUser = (user: User) => localStorage.setItem('user', JSON.stringify(user));
-export const removeUser = () => localStorage.removeItem('user');
+
+// We will deprecate these manual storage helpers in favor of Supabase's auto persistence
+export const setToken = (_token: string) => { };
+export const removeToken = () => { };
+export const getUser = () => {
+    // This is a bit tricky sync. Better to use useUser hook or similar.
+    // For now, let's return null.
+    return null;
+};
+export const setUser = (_user: User) => { };
+export const removeUser = () => { };

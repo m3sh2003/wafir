@@ -50,7 +50,7 @@ class _AiAdvisorScreenState extends ConsumerState<AiAdvisorScreen> {
           _isTyping = false;
           _messages.add(
             Message(
-              text: response.data['response'] ?? "I received your message but couldn't process it.",
+              text: response['response'] ?? "I received your message but couldn't process it.",
               isUser: false,
               timestamp: DateTime.now(),
             ),

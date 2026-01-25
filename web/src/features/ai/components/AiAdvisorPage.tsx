@@ -49,8 +49,8 @@ export function AiAdvisorPage() {
 
         try {
             const token = localStorage.getItem('token');
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-            // Backend has global prefix 'api', so we must append it.
+            // Serverless: AI Requests go to Next.js API (External)
+            const apiUrl = import.meta.env.VITE_AI_API_URL || 'http://localhost:3000';
             const response = await fetch(`${apiUrl}/api/ai/chat`, {
                 method: 'POST',
                 headers: {
@@ -74,10 +74,11 @@ export function AiAdvisorPage() {
             setMessages(prev => [...prev, aiMsg]);
         } catch (error: any) {
             console.error('AI Error:', error);
+            const apiUrl = import.meta.env.VITE_AI_API_URL || 'http://localhost:3000';
             const errorMsg: Message = {
                 id: (Date.now() + 1).toString(),
                 role: 'assistant',
-                content: `Connection Error: ${error.message || 'Unknown error'}. (API: ${import.meta.env.VITE_API_URL || 'undefined'})`,
+                content: `Connection Error: ${error.message || 'Unknown error'}. (API: ${apiUrl})`,
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, errorMsg]);

@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import '../../../core/api/api_client.dart';
 import '../../main/screens/main_screen.dart';
 import '../../../core/database/database_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,7 +14,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController(text: 'ahmed@example.com');
+  final _emailController = TextEditingController(text: 'ahmed.test@gmail.com');
   final _passwordController = TextEditingController(text: 'password123');
   final _apiClient = ApiClient();
   bool _isLoading = false;
@@ -26,14 +27,13 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final response = await _apiClient.login(
-        _emailController.text,
-        _passwordController.text,
+      final response = await Supabase.instance.client.auth.signInWithPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
       );
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        final token = response.data['access_token'];
-        await _apiClient.saveToken(token);
+      if (response.session != null) {
+        await _apiClient.saveToken(response.session!.accessToken);
         
         if (mounted) {
           Navigator.of(context).pushReplacement(
@@ -41,17 +41,14 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }
       }
-    } on DioException catch (e) {
+    } on AuthException catch (e) {
        if (mounted) {
          setState(() {
            _isLoading = false;
+           _errorMessage = e.message;
          });
-         String msg = 'Connection Error: ${e.message}';
-         if (e.response != null) {
-           msg = 'Server Error (${e.response?.statusCode}): ${e.response?.data}';
-         }
          ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text(msg), backgroundColor: Colors.red),
+           SnackBar(content: Text(e.message), backgroundColor: Colors.red),
          );
       }
     } catch (e) {

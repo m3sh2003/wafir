@@ -1,12 +1,15 @@
 import { addToQueue, cacheResponse, getCachedResponse, getQueue, removeFromQueue } from './db';
-import { getToken } from '../features/auth/api/auth';
+import { supabase } from './supabase';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 const API_PREFIX = `${API_BASE}/api`;
 
 export async function apiClient(endpoint: string, options: RequestInit = {}) {
     const url = `${API_PREFIX}${endpoint}`;
-    const token = getToken();
+
+    // Try to get token from Supabase session
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
 
     const headers = {
         'Content-Type': 'application/json',

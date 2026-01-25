@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '../../../lib/api_client';
+import { supabase } from '../../../lib/supabase';
 
 export interface Account {
     id: number;
@@ -34,24 +34,100 @@ export interface CreateHoldingDto {
 
 // Fetchers
 async function fetchAccounts(): Promise<Account[]> {
-    const res = await apiClient('/assets/accounts');
-    return res.json();
+    const { data, error } = await supabase
+        .from('accounts')
+        .select(`
+            *,
+            holdings (*)
+        `);
+
+    if (error) throw new Error(error.message);
+
+    return data.map((a: any) => ({
+        id: a.id,
+        name: a.name,
+        currencyCode: a.currency_code || a.currencyCode || 'USD', // Handle snake_case DB
+        type: a.type,
+        isPrimary: a.is_primary || false,
+        holdings: a.holdings?.map((h: any) => ({
+            id: h.id,
+            instrumentCode: h.instrument_code,
+            units: h.units,
+            isShariaCompliant: h.is_sharia_compliant,
+            isPrimaryHome: h.is_primary_home,
+            accountId: h.account_id
+        })) || []
+    }));
 }
 
 async function createAccount(dto: CreateAccountDto): Promise<Account> {
-    const res = await apiClient('/assets/accounts', {
-        method: 'POST',
-        body: JSON.stringify(dto),
-    });
-    return res.json();
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase
+        .from('accounts')
+        .insert({
+            name: dto.name,
+            type: dto.type,
+            currency_code: dto.currencyCode,
+            user_id: user.data.user.id
+        })
+        .select()
+        .single();
+
+    if (error) throw new Error(error.message);
+
+    return {
+        id: data.id,
+        name: data.name,
+        currencyCode: data.currency_code,
+        type: data.type,
+        isPrimary: data.is_primary,
+        holdings: []
+    };
 }
 
 async function createHolding(accountId: number, dto: CreateHoldingDto): Promise<Holding> {
-    const res = await apiClient(`/assets/accounts/${accountId}/holdings`, {
-        method: 'POST',
-        body: JSON.stringify(dto),
-    });
-    return res.json();
+    const { data, error } = await supabase
+        .from('holdings')
+        .insert({
+            account_id: accountId,
+            instrument_code: dto.instrumentCode,
+            units: dto.units,
+            is_sharia_compliant: dto.isShariaCompliant || false,
+            is_primary_home: dto.isPrimaryHome || false
+        })
+        .select()
+        .single();
+
+    if (error) throw new Error(error.message);
+
+    return {
+        id: data.id,
+        instrumentCode: data.instrument_code,
+        units: data.units,
+        isShariaCompliant: data.is_sharia_compliant,
+        isPrimaryHome: data.is_primary_home,
+        accountId: data.account_id
+    };
+}
+
+async function deleteAccount(id: number): Promise<void> {
+    const { error } = await supabase
+        .from('accounts')
+        .delete()
+        .eq('id', id);
+
+    if (error) throw new Error(error.message);
+}
+
+async function deleteHolding(id: number): Promise<void> {
+    const { error } = await supabase
+        .from('holdings')
+        .delete()
+        .eq('id', id);
+
+    if (error) throw new Error(error.message);
 }
 
 // Hooks
@@ -85,18 +161,6 @@ export const useAddHolding = () => {
     });
 };
 
-async function deleteAccount(id: number): Promise<void> {
-    await apiClient(`/assets/accounts/${id}`, {
-        method: 'DELETE',
-    });
-}
-
-async function deleteHolding(id: number): Promise<void> {
-    await apiClient(`/assets/holdings/${id}`, {
-        method: 'DELETE',
-    });
-}
-
 export const useDeleteAccount = () => {
     const queryClient = useQueryClient();
     return useMutation({
@@ -118,3 +182,5 @@ export const useDeleteHolding = () => {
         },
     });
 };
+
+
