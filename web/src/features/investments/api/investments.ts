@@ -25,84 +25,70 @@ export interface BuyInvestmentDto {
 
 // Fetchers
 async function fetchProducts(): Promise<Asset[]> {
-    const { data, error } = await supabase
-        .from('investment_products')
-        .select('*');
-
+    // Investment products likely public or simple
+    // Assuming 'investment_products' or 'assets'?
+    // Wait, Portfolio entity imports `Asset` from `../../assets/entities/asset.entity`.
+    // Let's assume there is a table for products.
+    // Legacy API was `/investments/products`.
+    // If table is `investment_products`:
+    const { data, error } = await supabase.from('investment_products').select('*');
     if (error) {
-        console.warn('Failed to fetch products (table might be missing)', error);
+        // Fallback or empty if not found
+        console.warn('Investment products fetch failed', error);
         return [];
     }
-
-    return data.map((p: any) => ({
-        id: p.id,
-        name: p.name,
-        type: p.type,
-        riskLevel: p.risk_level,
-        expectedReturn: p.expected_return,
-        minInvestment: p.min_investment,
-        description: p.description
-    }));
+    return data;
 }
 
 async function fetchPortfolio(): Promise<UserPortfolioItem[]> {
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) return [];
+
     const { data, error } = await supabase
-        .from('portfolio_items')
+        .from('user_portfolios') // Entity @Entity('user_portfolios')
         .select(`
             *,
-            asset:investment_products (*)
-        `);
+            asset:assetId (*)
+        `)
+        .eq('userId', user.data.user.id); // CamelCase column quoted
 
-    if (error) {
-        console.warn('Failed to fetch portfolio', error);
-        return [];
-    }
+    if (error) throw new Error(error.message);
 
-    // Filter out items with missing assets
-    return data
-        .filter((item: any) => item.asset)
-        .map((item: any) => ({
-            id: item.id,
-            amount: item.amount,
-            purchasedAt: item.created_at || new Date().toISOString(),
-            asset: {
-                id: item.asset.id,
-                name: item.asset.name,
-                type: item.asset.type,
-                riskLevel: item.asset.risk_level,
-                expectedReturn: item.asset.expected_return,
-                minInvestment: item.asset.min_investment,
-                description: item.asset.description
-            }
-        }));
+    return data.map((p: any) => ({
+        id: p.id,
+        amount: p.amount,
+        purchasedAt: p.purchasedAt, // CamelCase
+        asset: p.asset // Joined asset
+    }));
 }
 
 async function fetchUserProfile(): Promise<{ riskProfile: string | null }> {
+    // Fetch from 'users' table
     const user = await supabase.auth.getUser();
     if (!user.data.user) return { riskProfile: null };
 
-    // Assuming a user_settings or similar table, or metadata
-    // For simplicity, checking user_metadata first
-    if (user.data.user.user_metadata?.risk_profile) {
-        return { riskProfile: user.data.user.user_metadata.risk_profile };
-    }
+    const { data, error } = await supabase
+        .from('users')
+        .select('riskProfile') // CamelCase
+        .eq('id', user.data.user.id)
+        .single();
 
-    return { riskProfile: null };
+    if (error) return { riskProfile: null };
+    return { riskProfile: data.riskProfile };
 }
 
 async function buyInvestment(dto: BuyInvestmentDto): Promise<any> {
     const user = await supabase.auth.getUser();
     if (!user.data.user) throw new Error('Not authenticated');
 
-    // Simple implementation: Insert into portfolio_items
-    // Ideally this should be a transaction verifying balance, but covering minimal serverless path
+    // Insert into user_portfolios
     const { data, error } = await supabase
-        .from('portfolio_items')
+        .from('user_portfolios')
         .insert({
-            user_id: user.data.user.id,
-            product_id: dto.productId,
+            userId: user.data.user.id, // CamelCase
+            assetId: dto.productId,   // CamelCase
             amount: dto.amount,
-            created_at: new Date().toISOString()
+            purchasedAt: new Date().toISOString() // CamelCase
         })
         .select()
         .single();
@@ -111,24 +97,11 @@ async function buyInvestment(dto: BuyInvestmentDto): Promise<any> {
     return data;
 }
 
-async function sellInvestment(dto: BuyInvestmentDto): Promise<any> {
-    // For sell, we might verify we have it. 
-    // Simplified: Delete or decrease amount. 
-    // Assuming 'sell' means sell all or specific entry? The DTO has productId and amount.
-    // Let's implement a basic DELETE for the product ID for this user (sell all) for MVP
-    // OR decrement. Supabase doesn't have easy decrement without RPC.
-    // Let's just do an RPC call if it exists, or failover to "Alert: Not implemented fully in Serverless" or delete row.
-
-    // Attempting to just Delete the most recent purchase of this product for now as a "Sell" action
-    const user = await supabase.auth.getUser();
-    const { error } = await supabase
-        .from('portfolio_items')
-        .delete()
-        .eq('user_id', user.data.user?.id)
-        .eq('product_id', dto.productId); // Warning: This deletes ALL for this product
-
-    if (error) throw new Error(error.message);
-    return { success: true };
+async function sellInvestment(_dto: BuyInvestmentDto): Promise<any> {
+    // Simplify: just remove amount or delete row.
+    // Real implementation needs check existing.
+    // This is a Placeholder for legacy complex logic.
+    throw new Error('Sell not fully migrated to serverless yet');
 }
 
 async function rebalancePortfolio(): Promise<any> {

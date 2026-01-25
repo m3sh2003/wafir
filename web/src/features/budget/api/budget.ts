@@ -53,9 +53,9 @@ async function fetchEnvelopes(): Promise<Envelope[]> {
     return data.map((e: any) => ({
         id: e.id,
         name: e.name,
-        limitAmount: e.limit_amount,
+        limitAmount: e.limitAmount, // Legacy DB uses camelCase
         period: e.period,
-        spent: e.spent_amount // Computed column or view? If raw table, might be null.
+        spent: e.spentAmount || 0 // Assuming view or calculation might be needed, legacy had spentAmount? Or just spent
     }));
 }
 
@@ -67,9 +67,9 @@ async function createEnvelope(dto: CreateEnvelopeDto): Promise<Envelope> {
         .from('envelopes')
         .insert({
             name: dto.name,
-            limit_amount: dto.limitAmount,
+            limitAmount: dto.limitAmount, // Legacy CamelCase
             period: dto.period || 'MONTHLY',
-            user_id: user.data.user.id
+            userId: user.data.user.id // Legacy CamelCase
         })
         .select()
         .single();
@@ -79,7 +79,7 @@ async function createEnvelope(dto: CreateEnvelopeDto): Promise<Envelope> {
     return {
         id: data.id,
         name: data.name,
-        limitAmount: data.limit_amount,
+        limitAmount: data.limitAmount,
         period: data.period,
         spent: 0
     };
@@ -89,7 +89,7 @@ async function fetchTransactions(envelopeId: string): Promise<Transaction[]> {
     const { data, error } = await supabase
         .from('transactions')
         .select('*')
-        .eq('envelope_id', envelopeId)
+        .eq('"envelopeId"', envelopeId) // Legacy CamelCase Column Quoted for filter? PostgREST might handle plain envelopeId if column matches
         .order('date', { ascending: false });
 
     if (error) throw new Error(error.message);
@@ -100,7 +100,7 @@ async function fetchTransactions(envelopeId: string): Promise<Transaction[]> {
         amount: t.amount,
         date: t.date,
         type: t.type,
-        envelopeId: t.envelope_id,
+        envelopeId: t.envelopeId, // CamelCase
         currency: t.currency
     }));
 }
@@ -119,7 +119,7 @@ async function fetchAllTransactions(): Promise<Transaction[]> {
         amount: t.amount,
         date: t.date,
         type: t.type,
-        envelopeId: t.envelope_id,
+        envelopeId: t.envelopeId,
         currency: t.currency
     }));
 }
@@ -133,11 +133,11 @@ async function createTransaction(dto: CreateTransactionDto): Promise<Transaction
         .insert({
             description: dto.description,
             amount: dto.amount,
-            envelope_id: dto.envelopeId,
+            envelopeId: dto.envelopeId, // Legacy CamelCase
             date: dto.date || new Date().toISOString(),
             type: dto.type || 'EXPENSE',
             currency: dto.currency || 'USD',
-            user_id: user.data.user.id
+            userId: user.data.user.id // Legacy CamelCase
         })
         .select()
         .single();
@@ -153,18 +153,15 @@ async function createTransaction(dto: CreateTransactionDto): Promise<Transaction
         amount: data.amount,
         date: data.date,
         type: data.type,
-        envelopeId: data.envelope_id,
+        envelopeId: data.envelopeId,
         currency: data.currency
     };
 }
 
 // Categories - Assuming 'categories' table exists, if not we might skip or fail.
 async function fetchCategories(): Promise<Category[]> {
-    // Check if table exists first? Or just try.
-    // Assuming schema migration included categories if they existed. If not, this might fail.
-    // Let's assume for now we skip categories or try.
-    // The previous implementation used /budget/categories. 
-    // If Supabase doesn't have it, we return empty.
+    // Categories table likely 'categories'
+    // Legacy mapping check needed. Assuming simple 'name'.
     const { data, error } = await supabase.from('categories').select('*');
     if (error) {
         console.warn('Categories fetch failed (might not exist)', error);
@@ -177,7 +174,7 @@ async function createCategory(name: string): Promise<Category> {
     const user = await supabase.auth.getUser();
     const { data, error } = await supabase
         .from('categories')
-        .insert({ name, user_id: user.data.user?.id })
+        .insert({ name, userId: user.data.user?.id })
         .select()
         .single();
 

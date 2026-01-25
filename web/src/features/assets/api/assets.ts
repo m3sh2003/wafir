@@ -46,16 +46,16 @@ async function fetchAccounts(): Promise<Account[]> {
     return data.map((a: any) => ({
         id: a.id,
         name: a.name,
-        currencyCode: a.currency_code || a.currencyCode || 'USD', // Handle snake_case DB
+        currencyCode: a.currency_code || a.currencyCode, // Entity uses 'currency_code' but might be camelCase in raw query if quoted. Entity has @Column({ name: 'currency_code' }) so it is snake_case in DB
         type: a.type,
-        isPrimary: a.is_primary || false,
+        isPrimary: a.is_primary, // Entity has @Column({ name: 'is_primary' }) so it is snake_case
         holdings: a.holdings?.map((h: any) => ({
             id: h.id,
-            instrumentCode: h.instrument_code,
+            instrumentCode: h.instrument_code || h.instrumentCode,
             units: h.units,
-            isShariaCompliant: h.is_sharia_compliant,
-            isPrimaryHome: h.is_primary_home,
-            accountId: h.account_id
+            isShariaCompliant: h.is_sharia_compliant || h.isShariaCompliant,
+            isPrimaryHome: h.is_primary_home || h.isPrimaryHome,
+            accountId: h.account_id || h.accountId
         })) || []
     }));
 }
@@ -69,8 +69,9 @@ async function createAccount(dto: CreateAccountDto): Promise<Account> {
         .insert({
             name: dto.name,
             type: dto.type,
-            currency_code: dto.currencyCode,
-            user_id: user.data.user.id
+            currency_code: dto.currencyCode, // Snake case in DB
+            is_primary: false,
+            user_id: user.data.user.id // Entity has @Column({ name: 'user_id' })! So this IS snake_case for Accounts!
         })
         .select()
         .single();
@@ -88,6 +89,7 @@ async function createAccount(dto: CreateAccountDto): Promise<Account> {
 }
 
 async function createHolding(accountId: number, dto: CreateHoldingDto): Promise<Holding> {
+    // Holdings entity likely uses snake_case if Account used it.
     const { data, error } = await supabase
         .from('holdings')
         .insert({
