@@ -50,7 +50,11 @@ export function AiAdvisorPage() {
         try {
             const token = localStorage.getItem('token');
             // Serverless: AI Requests go to Next.js API (External)
-            const apiUrl = import.meta.env.VITE_AI_API_URL || 'http://localhost:3000';
+            let apiUrl = import.meta.env.VITE_AI_API_URL || 'http://localhost:3000';
+            if (apiUrl.endsWith('/')) {
+                apiUrl = apiUrl.slice(0, -1);
+            }
+
             const response = await fetch(`${apiUrl}/api/ai/chat`, {
                 method: 'POST',
                 headers: {
@@ -74,11 +78,14 @@ export function AiAdvisorPage() {
             setMessages(prev => [...prev, aiMsg]);
         } catch (error: any) {
             console.error('AI Error:', error);
-            const apiUrl = import.meta.env.VITE_AI_API_URL || 'http://localhost:3000';
+            // Re-calculate sanitized URL for error message or assume 'apiUrl' from scope is not available in catch block in older JS engines (safe to redeclare or just use raw env)
+            let rawUrl = import.meta.env.VITE_AI_API_URL || 'http://localhost:3000';
+            if (rawUrl.endsWith('/')) rawUrl = rawUrl.slice(0, -1);
+
             const errorMsg: Message = {
                 id: (Date.now() + 1).toString(),
                 role: 'assistant',
-                content: `Connection Error: ${error.message || 'Unknown error'}. (API: ${apiUrl})`,
+                content: `Connection Error: ${error.message || 'Unknown error'}. (API: ${rawUrl})`,
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, errorMsg]);
