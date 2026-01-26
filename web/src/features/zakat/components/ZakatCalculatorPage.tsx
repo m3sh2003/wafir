@@ -30,7 +30,7 @@ export function ZakatCalculatorPage() {
             }
         } catch (err) {
             console.error(err);
-            alert(`Calculation failed: ${err.message || 'Unknown error'}`);
+            alert(`Calculation failed: ${(err as any).message || 'Unknown error'}`);
         } finally {
             setLoading(false);
         }
