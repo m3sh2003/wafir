@@ -66,7 +66,7 @@ export function InvestmentsDashboard() {
 
     if (productsLoading || portfolioLoading) return <div className="p-6">Loading investments...</div>;
 
-    const { profile, currency } = useSettings(); // Use profile settings if needed
+    const { currency } = useSettings(); // Use profile settings if needed
     const displayCurrency = currency || 'SAR';
 
     const rates: Record<string, number> = {
@@ -86,7 +86,6 @@ export function InvestmentsDashboard() {
         // But for "Total Net Worth" typically it's Base. 
 
         // Let's assume user wants to see everything in 'displayCurrency'
-        const rate = rates[displayCurrency] || 1;
 
         // If fromCurrency is same as display, just return
         if (fromCurrency === displayCurrency) return amount;
@@ -115,7 +114,7 @@ export function InvestmentsDashboard() {
     if (productsLoading || portfolioLoading) return <div className="p-6">Loading investments...</div>;
 
     const totalPortfolioValue = portfolio?.reduce((sum, item) => {
-        return sum + convert(Number(item.amount), item.currency || 'SAR'); // Default to SAR logic if missing
+        return sum + convert(Number(item.amount), (item as any).currency || 'SAR'); // Default to SAR logic if missing
     }, 0) || 0;
 
     return (
