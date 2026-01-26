@@ -50,7 +50,6 @@ export const calculateSystemZakat = async (): Promise<any> => {
             *,
             holdings (
                 units,
-                is_sharia_compliant,
                 is_primary_home,
                 instrument_code
             )
@@ -75,7 +74,8 @@ export const calculateSystemZakat = async (): Promise<any> => {
             if (h.is_primary_home) return;
 
             // Categorize
-            if (acc.type === 'bank' || acc.type === 'cash' || h.instrument_code.toLowerCase().includes('cash')) {
+            const instrumentCode = h.instrument_code || 'unknown';
+            if (acc.type === 'bank' || acc.type === 'cash' || instrumentCode.toLowerCase().includes('cash')) {
                 breakdown.cash_sar += val;
                 totalAssetsSAR += val;
             } else if (acc.type === 'real_estate') {

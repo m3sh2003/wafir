@@ -66,7 +66,57 @@ export function InvestmentsDashboard() {
 
     if (productsLoading || portfolioLoading) return <div className="p-6">Loading investments...</div>;
 
-    const totalPortfolioValue = portfolio?.reduce((sum, item) => sum + Number(item.amount), 0) || 0;
+    const { profile, currency } = useSettings(); // Use profile settings if needed
+    const displayCurrency = currency || 'SAR';
+
+    const rates: Record<string, number> = {
+        'SAR': 1,
+        'USD': 0.266, // 1 SAR = 0.266 USD
+        'EGP': 12.5   // 1 SAR = 12.5 EGP
+    };
+
+    const convert = (amount: number, fromCurrency = 'SAR') => {
+        // Convert to Base (SAR) first
+        let inSAR = amount;
+        if (fromCurrency === 'USD') inSAR = amount / 0.266;
+        else if (fromCurrency === 'EGP') inSAR = amount / 12.5;
+
+        // Then convert to Target (if different)
+        // For Dashboard Totals, we usually show in User's Preferred Currency (displayCurrency)
+        // But for "Total Net Worth" typically it's Base. 
+
+        // Let's assume user wants to see everything in 'displayCurrency'
+        const rate = rates[displayCurrency] || 1;
+
+        // If fromCurrency is same as display, just return
+        if (fromCurrency === displayCurrency) return amount;
+
+        // If fromCurrency and displayCurrency both exist in rates (relative to SAR)
+        // converting 100 EGP to USD?
+        // 100 EGP / 12.5 = 8 SAR -> 8 * 0.266 = 2.128 USD
+
+        return inSAR * (rates[displayCurrency] || 1); // This logic needs to align with BudgetSummary. 
+        // BudgetSummary: totalBudget = ... + convert(..., 'SAR'). 
+        // BudgetSummary converts EVERYTHING to 'SAR' first? No.
+        // BudgetSummary: 
+        // const convert = (amount: number, fromCurrency = 'SAR') => {
+        //    let inSAR = amount;
+        //    if (fromCurrency === 'USD') inSAR = amount / 0.266;
+        //    else if (fromCurrency === 'EGP') inSAR = amount / 12.5;
+        //    const rate = rates[displayCurrency] || 1;
+        //    return inSAR * rate;
+        // };
+        // Wait, if 1 SAR = 12.5 EGP.
+        // If I have 1 SAR, I have 12.5 EGP.
+        // So SAR -> EGP is * 12.5.
+        // Correct.
+    };
+
+    if (productsLoading || portfolioLoading) return <div className="p-6">Loading investments...</div>;
+
+    const totalPortfolioValue = portfolio?.reduce((sum, item) => {
+        return sum + convert(Number(item.amount), item.currency || 'SAR'); // Default to SAR logic if missing
+    }, 0) || 0;
 
     return (
         <div className="p-6 space-y-8 animate-in fade-in">

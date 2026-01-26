@@ -7,12 +7,14 @@ export interface Envelope {
     limitAmount: string;
     period: string;
     spent?: number;
+    isVisible?: boolean;
 }
 
 export interface CreateEnvelopeDto {
     name: string;
     limitAmount: number;
     period?: string;
+    isVisible?: boolean;
 }
 
 export interface Transaction {
@@ -44,19 +46,85 @@ export interface Category {
 // Fetchers
 
 async function fetchEnvelopes(): Promise<Envelope[]> {
-    const { data, error } = await supabase
+    // Fetch envelopes
+    const { data: envelopesData, error: envelopesError } = await supabase
         .from('envelopes')
-        .select('*');
+        .select('*')
+        .order('id', { ascending: true });
 
-    if (error) throw new Error(error.message);
+    if (envelopesError) throw new Error(envelopesError.message);
 
-    return data.map((e: any) => ({
-        id: e.id,
-        name: e.name,
-        limitAmount: e.limitAmount, // Legacy DB uses camelCase
-        period: e.period,
-        spent: e.spentAmount || 0 // Assuming view or calculation might be needed, legacy had spentAmount? Or just spent
-    }));
+    // Fetch all transactions for calculation
+    const { data: transactionsData, error: transactionsError } = await supabase
+        .from('transactions')
+        .select('id, amount, envelopeId, type');
+
+    if (transactionsError) throw new Error(transactionsError.message);
+
+    const transactions = transactionsData || [];
+
+    return envelopesData.map((e: any) => {
+        // Calculate spent amount for this envelope
+        const envelopeTransactions = transactions.filter((t: any) => t.envelopeId === e.id && t.type === 'EXPENSE');
+        const spent = envelopeTransactions.reduce((sum: number, t: any) => sum + Number(t.amount), 0);
+
+        return {
+            id: e.id,
+            name: e.name,
+            limitAmount: e.limitAmount,
+            period: e.period,
+            spent: spent,
+            isVisible: e.isVisible !== false // Default to true if null/undefined
+        };
+    });
+}
+
+// Default Envelopes List
+const DEFAULT_ENVELOPES = [
+    { name: 'Housing', limitAmount: 0 },
+    { name: 'Utilities', limitAmount: 0 },
+    { name: 'Groceries', limitAmount: 0 },
+    { name: 'Transportation', limitAmount: 0 },
+    { name: 'Insurance', limitAmount: 0 },
+    { name: 'Healthcare', limitAmount: 0 },
+    { name: 'Savings', limitAmount: 0 },
+    { name: 'Personal', limitAmount: 0 },
+    { name: 'Entertainment', limitAmount: 0 },
+    { name: 'Zakat', limitAmount: 0 },
+    { name: 'Taxes', limitAmount: 0 },
+    { name: 'Decoration', limitAmount: 0 },
+    { name: 'Procedures', limitAmount: 0 },
+];
+
+async function checkAndCreateDefaultEnvelopes(): Promise<void> {
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) return;
+
+    const { count, error } = await supabase
+        .from('envelopes')
+        .select('id', { count: 'exact', head: true });
+
+    if (!error && count === 0) {
+        // Create defaults
+        const envelopesToInsert = DEFAULT_ENVELOPES.map(env => ({
+            name: env.name, // Will be localized in UI
+            limitAmount: env.limitAmount, // 0 initially
+            period: 'MONTHLY',
+            userId: user.data.user?.id, // Legacy camelCase column if matching DB
+            // RLS policies might require correct column naming. User is auto-injected by RLS usually? 
+            // The API function creates envelopes with `userId: user.data.user.id`. 
+            // In `budget.ts` `createEnvelope` uses `userId: user.data.user.id`.
+            // The DB schema showed `userId` (camelCase) column in Envelopes for authenticated checks.
+            isVisible: true
+        }));
+
+        // We can't bulk insert if the API expects one by one? 
+        // Supabase `insert` supports array.
+        // However, we need to be careful about column names.
+        // `createEnvelope` uses `userId` (camelCase).
+
+        await supabase.from('envelopes').insert(envelopesToInsert);
+    }
 }
 
 async function createEnvelope(dto: CreateEnvelopeDto): Promise<Envelope> {
@@ -67,9 +135,10 @@ async function createEnvelope(dto: CreateEnvelopeDto): Promise<Envelope> {
         .from('envelopes')
         .insert({
             name: dto.name,
-            limitAmount: dto.limitAmount, // Legacy CamelCase
+            limitAmount: dto.limitAmount,
             period: dto.period || 'MONTHLY',
-            userId: user.data.user.id // Legacy CamelCase
+            userId: user.data.user.id,
+            isVisible: dto.isVisible ?? true
         })
         .select()
         .single();
@@ -81,7 +150,8 @@ async function createEnvelope(dto: CreateEnvelopeDto): Promise<Envelope> {
         name: data.name,
         limitAmount: data.limitAmount,
         period: data.period,
-        spent: 0
+        spent: 0,
+        isVisible: data.isVisible
     };
 }
 
@@ -89,7 +159,7 @@ async function fetchTransactions(envelopeId: string): Promise<Transaction[]> {
     const { data, error } = await supabase
         .from('transactions')
         .select('*')
-        .eq('"envelopeId"', envelopeId) // Legacy CamelCase Column Quoted for filter? PostgREST might handle plain envelopeId if column matches
+        .eq('"envelopeId"', envelopeId)
         .order('date', { ascending: false });
 
     if (error) throw new Error(error.message);
@@ -100,7 +170,7 @@ async function fetchTransactions(envelopeId: string): Promise<Transaction[]> {
         amount: t.amount,
         date: t.date,
         type: t.type,
-        envelopeId: t.envelopeId, // CamelCase
+        envelopeId: t.envelopeId,
         currency: t.currency
     }));
 }
@@ -133,19 +203,16 @@ async function createTransaction(dto: CreateTransactionDto): Promise<Transaction
         .insert({
             description: dto.description,
             amount: dto.amount,
-            envelopeId: dto.envelopeId, // Legacy CamelCase
+            envelopeId: dto.envelopeId,
             date: dto.date || new Date().toISOString(),
             type: dto.type || 'EXPENSE',
             currency: dto.currency || 'USD',
-            userId: user.data.user.id // Legacy CamelCase
+            userId: user.data.user.id
         })
         .select()
         .single();
 
     if (error) throw new Error(error.message);
-
-    // Initial basic update for spent amount on envelope - ideally this should be a trigger in DB or handled by RLS/logic
-    // For now we trust the client or triggers.
 
     return {
         id: data.id,
@@ -158,13 +225,11 @@ async function createTransaction(dto: CreateTransactionDto): Promise<Transaction
     };
 }
 
-// Categories - Assuming 'categories' table exists, if not we might skip or fail.
+// Categories
 async function fetchCategories(): Promise<Category[]> {
-    // Categories table likely 'categories'
-    // Legacy mapping check needed. Assuming simple 'name'.
     const { data, error } = await supabase.from('categories').select('*');
     if (error) {
-        console.warn('Categories fetch failed (might not exist)', error);
+        console.warn('Categories fetch failed', error);
         return [];
     }
     return data;
@@ -182,12 +247,32 @@ async function createCategory(name: string): Promise<Category> {
     return data;
 }
 
+// Visibility Toggle
+async function toggleEnvelopeVisibility({ id, isVisible }: { id: string; isVisible: boolean }) {
+    const { error } = await supabase
+        .from('envelopes')
+        .update({ isVisible }) // ensure column isVisible is in DB
+        .eq('id', id);
+
+    if (error) throw new Error(error.message);
+}
+
 // Hooks
 
 export const useEnvelopes = () => {
     return useQuery({
         queryKey: ['envelopes'],
         queryFn: fetchEnvelopes,
+    });
+};
+
+export const useCheckAndCreateDefaultEnvelopes = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: checkAndCreateDefaultEnvelopes,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['envelopes'] });
+        },
     });
 };
 
@@ -241,6 +326,16 @@ export const useCreateCategory = () => {
         mutationFn: createCategory,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['categories'] });
+        },
+    });
+};
+
+export const useToggleEnvelopeVisibility = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: toggleEnvelopeVisibility,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['envelopes'] });
         },
     });
 };
