@@ -63,10 +63,23 @@ async function fetchEnvelopes(): Promise<Envelope[]> {
 
     const transactions = transactionsData || [];
 
+    // Exchange Rates (Hardcoded for now to match other files)
+
+    const toSAR = (amount: number, currency: string = 'SAR') => {
+        const code = currency.toUpperCase();
+        if (code === 'SAR') return amount;
+        if (code === 'USD') return amount * 3.75; // Standard Fixed
+        if (code === 'EGP') return amount / 12.5; // Matches other files logic
+        return amount;
+    };
+
     return envelopesData.map((e: any) => {
         // Calculate spent amount for this envelope
         const envelopeTransactions = transactions.filter((t: any) => t.envelopeId === e.id && t.type === 'EXPENSE');
-        const spent = envelopeTransactions.reduce((sum: number, t: any) => sum + Number(t.amount), 0);
+        const spent = envelopeTransactions.reduce((sum: number, t: any) => {
+            return sum + toSAR(Number(t.amount), t.currency || 'USD'); // Default to USD if missing? Or SAR? Transactions usually default to USD in some createdto.
+            // In createTransactionDto, default is 'USD'.
+        }, 0);
 
         return {
             id: e.id,

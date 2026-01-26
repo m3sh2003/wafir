@@ -67,8 +67,16 @@ export const calculateSystemZakat = async (): Promise<any> => {
     };
 
     accounts?.forEach((acc: any) => {
+        const currency = acc.currency_code || 'SAR';
+        const toSAR = (val: number) => {
+            if (currency === 'USD') return val * 3.75;
+            if (currency === 'EGP') return val / 12.5;
+            return val;
+        };
+
         acc.holdings?.forEach((h: any) => {
-            const val = Number(h.units);
+            const rawVal = Number(h.units);
+            const val = toSAR(rawVal);
 
             // Logic: Exclude Primary Home by default
             if (h.is_primary_home) return;
