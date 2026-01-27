@@ -71,9 +71,9 @@ async function fetchPortfolio(): Promise<UserPortfolioItem[]> {
         acc.holdings?.forEach((h: any) => {
             portfolioItems.push({
                 id: h.id.toString(),
-                amount: h.units.toString(), // Assuming units = value for now, or we need a price. In manual entry, user enters 'Value/Units'.
-                purchasedAt: new Date().toISOString(), // Mock date as date not tracked in simple holding
-                currency: acc.currency_code,
+                amount: h.units.toString(),
+                purchasedAt: new Date().toISOString(),
+                currency: acc.currency_code || acc.currencyCode || 'SAR', // Handle both Supabase raw and potentially mapped cases
                 asset: {
                     id: h.asset_id || 'manual-' + h.id,
                     name: h.instrument_code,
