@@ -12,15 +12,29 @@ export function OverviewDashboard() {
     const { data: envelopes, isLoading: isBudgetLoading } = useEnvelopes();
 
     // Calculations
-    const totalAssets = portfolio?.reduce((sum, item) => sum + Number(item.amount), 0) || 0;
+    const RATES: Record<string, number> = { 'SAR': 1, 'USD': 3.75, 'EGP': 0.08 };
+    const toSAR = (amount: number, currency: string = 'SAR') => {
+        const rate = RATES[currency.toUpperCase()] || 1;
+        return amount * rate;
+    };
 
-    const monthlyExpenses = envelopes?.reduce((sum, env) => sum + (env.spent || 0), 0) || 0;
+    const totalAssets = portfolio?.reduce((sum, item) => {
+        // Portfolio items from 'investments' api might be raw.
+        // We need to check if they have currency. 
+        // Note: Investments API 'userPortfolio' usually returns normalized SAR if we fixed it?
+        // Let's check 'investments.ts'. fetchPortfolio returns items.
+        // Wait, 'useUserPortfolio' returns `UserPortfolioItem` which has `currency`.
+        // My previous fix in investments.ts added `currency_code` mapping. 
+        return sum + toSAR(Number(item.amount), (item as any).currency || 'SAR');
+    }, 0) || 0;
+
+    const monthlyExpenses = envelopes?.reduce((sum, env) => sum + (env.spent || 0), 0) || 0; // env.spent is already SAR from budget.ts fix
     const budgetLimit = envelopes?.reduce((sum, env) => sum + Number(env.limitAmount), 0) || 1;
     const budgetUsagePct = Math.round((monthlyExpenses / budgetLimit) * 100);
 
     const compliantAssets = portfolio?.filter(item => {
         return (item.asset as any).isShariaCompliant !== false;
-    }).reduce((sum, item) => sum + Number(item.amount), 0) || 0;
+    }).reduce((sum, item) => sum + toSAR(Number(item.amount), (item as any).currency || 'SAR'), 0) || 0;
 
     const compliancePct = totalAssets > 0 ? Math.round((compliantAssets / totalAssets) * 100) : 100;
 

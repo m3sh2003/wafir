@@ -83,7 +83,22 @@ export class AiService {
                 },
                 assets: {
                     totalValue: totalAssets,
-                    accounts: accounts.map(a => ({ name: a.name, type: a.type, balance: a.balance }))
+                    accounts: accounts.map(a => {
+                        const balance = Number(a.balance || 0);
+                        const currency = (a as any).currency_code || 'SAR'; // Cast as any if DTO missing type
+
+                        // Mock Rates (Sync with Frontend logic ideally)
+                        let inSAR = balance;
+                        if (currency === 'USD') inSAR = balance * 3.75;
+                        if (currency === 'EGP') inSAR = balance * 0.08;
+
+                        return {
+                            name: a.name,
+                            type: a.type,
+                            originalBalance: `${balance} ${currency}`,
+                            approxSAR: inSAR.toFixed(2)
+                        };
+                    })
                 },
                 recentActivity: recentTransactions
             };
@@ -91,12 +106,15 @@ export class AiService {
             const systemPrompt = `
                 You are Wafir AI, an expert Islamic Finance Advisor.
                 
-                **User Financial Data:**
-                ${JSON.stringify(financialContext, null, 2)}
+                **User Financial Data (Pre-Calculated in SAR):**
+                ${JSON.stringify({
+                ...financialContext,
+                note: "All monetary values have been normalized to SAR (Saudi Riyal) for your convenience. Please use 'approxSAR' values for any aggregation."
+            }, null, 2)}
                 
                 **Instructions:**
-                - Use the provided data to answer the user's question directly.
-                - If the user asks for an assessment, analyze their budget utilization and asset allocation.
+                - CRITICAL: You must use the 'approxSAR' field for any asset/net worth calculations. Do NOT sum 'originalBalance' values directly as they may contain mixed currencies (USD, EGP, etc.).
+                - If the user asks for an assessment, analyze their budget utilization and asset allocation based on the SAR values.
                 - Keep answers concise (under 3 paragraphs).
                 - Always ensure advice is Sharia-compliant.
 
