@@ -17,6 +17,7 @@ export interface UserPortfolioItem {
     purchasedAt: string;
     asset: Asset;
     currency?: string;
+    isGoldLivePrice?: boolean;
 }
 
 export interface BuyInvestmentDto {
@@ -49,7 +50,8 @@ async function fetchPortfolio(): Promise<UserPortfolioItem[]> {
         .select(`
             id,
             type,
-            currency_code, 
+            currency_code,
+            is_gold_live_price,
             holdings (
                 id,
                 instrument_code,
@@ -73,7 +75,8 @@ async function fetchPortfolio(): Promise<UserPortfolioItem[]> {
                 id: h.id.toString(),
                 amount: h.units.toString(),
                 purchasedAt: new Date().toISOString(),
-                currency: acc.currency_code || acc.currencyCode || 'SAR', // Handle both Supabase raw and potentially mapped cases
+                currency: acc.currency_code || acc.currencyCode || 'SAR',
+                isGoldLivePrice: acc.is_gold_live_price,
                 asset: {
                     id: h.asset_id || 'manual-' + h.id,
                     name: h.instrument_code,

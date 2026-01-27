@@ -86,17 +86,26 @@ export class AiService {
                     accounts: accounts.map(a => {
                         const balance = Number(a.balance || 0);
                         const currency = (a as any).currency_code || 'SAR'; // Cast as any if DTO missing type
+                        let originalBalance = `${balance} ${currency}`;
 
                         // Mock Rates (Sync with Frontend logic ideally)
                         let inSAR = balance;
-                        if (currency === 'USD') inSAR = balance * 3.75;
-                        if (currency === 'EGP') inSAR = balance * 0.08;
+
+                        // Gold Logic
+                        if (a.type === 'gold' && (a as any).isGoldLivePrice) {
+                            inSAR = balance * 610; // 610 SAR/g
+                            // Update original balance text to reflect grams vs SAR value clearly
+                            originalBalance = `${balance}g Gold`;
+                        } else {
+                            if (currency === 'USD') inSAR = balance * 3.75;
+                            if (currency === 'EGP') inSAR = balance * 0.08;
+                        }
 
                         return {
                             name: a.name,
                             type: a.type,
                             isGoldLivePrice: (a as any).isGoldLivePrice,
-                            originalBalance: `${balance} ${currency}`,
+                            originalBalance,
                             approxSAR: inSAR.toFixed(2)
                         };
                     })

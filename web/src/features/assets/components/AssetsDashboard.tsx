@@ -67,7 +67,13 @@ export function AssetsDashboard() {
 
     // Normalize to SAR for global total
     const getNormalizedAccountTotal = (acc: Account) => {
-        const total = getAccountTotal(acc.holdings);
+        let total = getAccountTotal(acc.holdings);
+
+        // Handle Gold Grams -> Value conversion if enabled
+        if (acc.type === 'gold' && (acc as any).isGoldLivePrice) {
+            total = total * 610; // Mock Price 610 SAR/g
+        }
+
         // Fixed Rates (TODO: Sync with Settings/Backend)
         const RATE_USD = 3.75;
         const RATE_EGP = 0.08; // 1 EGP = 0.08 SAR (1/12.5)

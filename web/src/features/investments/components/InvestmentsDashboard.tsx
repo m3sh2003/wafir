@@ -114,7 +114,13 @@ export function InvestmentsDashboard() {
     if (productsLoading || portfolioLoading) return <div className="p-6">Loading investments...</div>;
 
     const totalPortfolioValue = portfolio?.reduce((sum, item) => {
-        return sum + convert(Number(item.amount), (item as any).currency || 'SAR'); // Default to SAR logic if missing
+        let val = Number(item.amount);
+        // Handle Gold Grams -> Value conversion if enabled (matching AssetsDashboard logic)
+        // Access 'isGoldLivePrice' passed from API
+        if ((item as any).isGoldLivePrice) {
+            val = val * 610; // Mock Price 610 SAR/g
+        }
+        return sum + convert(val, (item as any).currency || 'SAR');
     }, 0) || 0;
 
     return (
