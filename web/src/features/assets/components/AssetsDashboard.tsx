@@ -81,10 +81,13 @@ export function AssetsDashboard() {
 
     const getIcon = (type: string) => {
         if (type === 'bank') return <Landmark className="w-5 h-5" />;
-        if (type === 'broker') return <Building2 className="w-5 h-5" />;
-        if (type === 'real_estate') return <Home className="w-5 h-5" />;
+        if (type === 'broker' || type === 'stock' || type === 'equity_fund') return <Building2 className="w-5 h-5" />;
+        if (type === 'real_estate' || type === 'rental_property') return <Home className="w-5 h-5" />;
+        if (type === 'gold') return <Coins className="w-5 h-5 text-yellow-600" />;
         return <Wallet className="w-5 h-5" />;
     };
+
+
 
     return (
         <div className="p-6 space-y-8 animate-in fade-in">
@@ -222,9 +225,15 @@ export function AssetsDashboard() {
                                             onChange={e => setNewAccount({ ...newAccount, type: e.target.value })}
                                         >
                                             <option value="bank">{t('bank')}</option>
-                                            <option value="broker">{t('broker')}</option>
                                             <option value="cash">{t('Cash')}</option>
-                                            <option value="real_estate">{t('real_estate')}</option>
+                                            <option value="gold">{t('Gold')}</option>
+                                            <option value="stock">{t('Stock')}</option>
+                                            <option value="equity_fund">{t('Equity Fund')}</option>
+                                            <option value="real_estate_fund">{t('Real Estate Fund')}</option>
+                                            <option value="real_estate">{t('Real Estate')}</option>
+                                            <option value="rental_property">{t('Rental Property')}</option>
+                                            <option value="broker">{t('broker')}</option>
+                                            <option value="certificate">{t('Certificate')}</option>
                                         </select>
                                     </div>
                                     <div>
@@ -240,6 +249,23 @@ export function AssetsDashboard() {
                                         </select>
                                     </div>
                                 </div>
+
+                                {newAccount.type === 'gold' && (
+                                    <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200">
+                                        <label className="flex items-center gap-2 cursor-pointer text-yellow-800">
+                                            <input
+                                                type="checkbox"
+                                                checked={(newAccount as any).isGoldLivePrice}
+                                                onChange={e => setNewAccount({ ...newAccount, isGoldLivePrice: e.target.checked } as any)}
+                                                className="rounded border-yellow-400 text-yellow-600 focus:ring-yellow-500"
+                                            />
+                                            <span className="text-sm font-medium">{t('use_live_gold_price')} (Auto-update)</span>
+                                        </label>
+                                        <p className="text-xs text-yellow-600 mt-1 pl-6">
+                                            {t('if_checked_units_are_grams')}
+                                        </p>
+                                    </div>
+                                )}
                                 <div className="flex justify-end gap-2 pt-2">
                                     <button type="button" onClick={() => setIsAccountModalOpen(false)} className="px-4 py-2 rounded-md hover:bg-muted">{t('cancel')}</button>
                                     <button type="submit" disabled={createAccount.isPending} className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90">

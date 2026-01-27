@@ -5,7 +5,7 @@ export interface Account {
     id: number;
     name: string;
     currencyCode: string;
-    type: 'bank' | 'broker' | 'cash' | 'certificate' | 'real_estate';
+    type: 'bank' | 'broker' | 'cash' | 'certificate' | 'real_estate' | 'gold' | 'stock' | 'equity_fund' | 'real_estate_fund' | 'rental_property';
     isPrimary: boolean;
     holdings?: Holding[];
 }
@@ -23,6 +23,17 @@ export interface CreateAccountDto {
     name: string;
     type: string;
     currencyCode: string;
+    isGoldLivePrice?: boolean;
+}
+
+export interface Account {
+    id: number;
+    name: string;
+    currencyCode: string;
+    type: 'bank' | 'broker' | 'cash' | 'certificate' | 'real_estate' | 'gold' | 'stock' | 'equity_fund' | 'real_estate_fund' | 'rental_property';
+    isPrimary: boolean;
+    isGoldLivePrice?: boolean;
+    holdings?: Holding[];
 }
 
 export interface CreateHoldingDto {
@@ -48,7 +59,8 @@ async function fetchAccounts(): Promise<Account[]> {
         name: a.name,
         currencyCode: a.currency_code || a.currencyCode, // Entity uses 'currency_code' but might be camelCase in raw query if quoted. Entity has @Column({ name: 'currency_code' }) so it is snake_case in DB
         type: a.type,
-        isPrimary: a.is_primary, // Entity has @Column({ name: 'is_primary' }) so it is snake_case
+        isPrimary: a.is_primary,
+        isGoldLivePrice: a.is_gold_live_price,
         holdings: a.holdings?.map((h: any) => ({
             id: h.id,
             instrumentCode: h.instrument_code || h.instrumentCode,
@@ -72,7 +84,8 @@ async function createAccount(dto: CreateAccountDto): Promise<Account> {
             currency_code: dto.currencyCode, // Snake case in DB
             is_primary: false,
             balance: 0,
-            user_id: user.data.user.id // Entity has @Column({ name: 'user_id' })! So this IS snake_case for Accounts!
+            user_id: user.data.user.id,
+            is_gold_live_price: dto.isGoldLivePrice || false
         })
         .select()
         .single();

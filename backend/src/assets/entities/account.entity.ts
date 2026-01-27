@@ -7,7 +7,12 @@ export enum AccountType {
     BROKER = 'broker',
     CASH = 'cash',
     CERTIFICATE = 'certificate',
-    REAL_ESTATE = 'real_estate'
+    REAL_ESTATE = 'real_estate',
+    GOLD = 'gold',
+    STOCK = 'stock',
+    EQUITY_FUND = 'equity_fund',
+    REAL_ESTATE_FUND = 'real_estate_fund',
+    RENTAL_PROPERTY = 'rental_property'
 }
 
 @Entity('accounts')
@@ -43,4 +48,8 @@ export class Account {
 
     @OneToMany(() => Holding, holding => holding.account)
     holdings: Holding[];
+
+    // Gold Specifics
+    @Column({ name: 'is_gold_live_price', default: false })
+    isGoldLivePrice: boolean;
 }
