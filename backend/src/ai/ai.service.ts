@@ -95,6 +95,7 @@ export class AiService {
                         return {
                             name: a.name,
                             type: a.type,
+                            isGoldLivePrice: (a as any).isGoldLivePrice,
                             originalBalance: `${balance} ${currency}`,
                             approxSAR: inSAR.toFixed(2)
                         };

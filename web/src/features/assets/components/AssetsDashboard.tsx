@@ -164,7 +164,18 @@ export function AssetsDashboard() {
                                                 {!h.isShariaCompliant && <span className="text-[10px] bg-red-100 text-red-800 px-1.5 py-0.5 rounded">Not Compliant</span>}
                                             </div>
                                             <div className="flex items-center gap-3">
-                                                <span className="font-mono">{Number(h.units).toLocaleString()}</span>
+                                                <div className="flex flex-col items-end">
+                                                    <span className="font-mono">
+                                                        {acc.type === 'gold'
+                                                            ? `${Number(h.units).toLocaleString()}g`
+                                                            : Number(h.units).toLocaleString()}
+                                                    </span>
+                                                    {acc.type === 'gold' && (acc as any).isGoldLivePrice && (
+                                                        <span className="text-[10px] text-yellow-600">
+                                                            ≈ {formatPrice(Number(h.units) * 300)} {/* Mock Price 300 SAR/g */}
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <button
                                                     onClick={() => handleDeleteHolding(h.id)}
                                                     className="text-red-400 hover:text-red-600 transition-opacity p-1"
@@ -303,11 +314,13 @@ export function AssetsDashboard() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">{t('value_units')}</label>
+                                    <label className="block text-sm font-medium mb-1">
+                                        {selectedAccountForHolding.type === 'gold' ? t('weight_grams') : t('value_units')}
+                                    </label>
                                     <input
                                         type="number"
                                         className="w-full p-2 rounded-md border bg-input"
-                                        placeholder="0.00"
+                                        placeholder={selectedAccountForHolding.type === 'gold' ? "e.g. 50" : "0.00"}
                                         value={newHolding.units}
                                         onChange={e => setNewHolding({ ...newHolding, units: Number(e.target.value) })}
                                         required
