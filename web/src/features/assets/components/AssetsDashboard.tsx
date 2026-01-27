@@ -172,7 +172,7 @@ export function AssetsDashboard() {
                                                     </span>
                                                     {acc.type === 'gold' && (acc as any).isGoldLivePrice && (
                                                         <span className="text-[10px] text-yellow-600">
-                                                            ≈ {formatPrice(Number(h.units) * 300)} {/* Mock Price 300 SAR/g */}
+                                                            ≈ {formatPrice(Number(h.units) * 610)} {/* Mock Price 610 SAR/g */}
                                                         </span>
                                                     )}
                                                 </div>
