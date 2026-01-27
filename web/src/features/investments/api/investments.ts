@@ -16,6 +16,7 @@ export interface UserPortfolioItem {
     amount: string;
     purchasedAt: string;
     asset: Asset;
+    currency?: string;
 }
 
 export interface BuyInvestmentDto {
@@ -47,6 +48,8 @@ async function fetchPortfolio(): Promise<UserPortfolioItem[]> {
         .from('accounts')
         .select(`
             id,
+            type,
+            currency_code, 
             holdings (
                 id,
                 instrument_code,
@@ -70,6 +73,7 @@ async function fetchPortfolio(): Promise<UserPortfolioItem[]> {
                 id: h.id.toString(),
                 amount: h.units.toString(), // Assuming units = value for now, or we need a price. In manual entry, user enters 'Value/Units'.
                 purchasedAt: new Date().toISOString(), // Mock date as date not tracked in simple holding
+                currency: acc.currency_code,
                 asset: {
                     id: h.asset_id || 'manual-' + h.id,
                     name: h.instrument_code,

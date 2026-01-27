@@ -77,8 +77,7 @@ async function fetchEnvelopes(): Promise<Envelope[]> {
         // Calculate spent amount for this envelope
         const envelopeTransactions = transactions.filter((t: any) => t.envelopeId === e.id && t.type === 'EXPENSE');
         const spent = envelopeTransactions.reduce((sum: number, t: any) => {
-            return sum + toSAR(Number(t.amount), t.currency || 'USD'); // Default to USD if missing? Or SAR? Transactions usually default to USD in some createdto.
-            // In createTransactionDto, default is 'USD'.
+            return sum + toSAR(Number(t.amount), t.currency || 'SAR'); // Default to SAR
         }, 0);
 
         return {
